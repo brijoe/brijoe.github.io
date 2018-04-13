@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="##计算机网络浏览器一次请求URL过程解析主机名 查询DNS获取IP 获得端口号 发起TCP连接 发送HTTP GET报文  读取响应报文  关闭TCP 连接 ###TCP  ####TCP和UDP 区别连接无连接 有差错控制无差错控制  有无拥塞控制Java中的实现 socket/serverSocket  DatagramSocket DatagramPacket 可靠的UDP RUDP 传输">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android技术点总结">
+<meta property="og:url" content="https://brijoe.github.io/2018/04/13/Android知识点总结/index.html">
+<meta property="og:site_name" content="Brijoe的博客">
+<meta property="og:description" content="##计算机网络浏览器一次请求URL过程解析主机名 查询DNS获取IP 获得端口号 发起TCP连接 发送HTTP GET报文  读取响应报文  关闭TCP 连接 ###TCP  ####TCP和UDP 区别连接无连接 有差错控制无差错控制  有无拥塞控制Java中的实现 socket/serverSocket  DatagramSocket DatagramPacket 可靠的UDP RUDP 传输">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-04-13T13:04:45.652Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android技术点总结">
+<meta name="twitter:description" content="##计算机网络浏览器一次请求URL过程解析主机名 查询DNS获取IP 获得端口号 发起TCP连接 发送HTTP GET报文  读取响应报文  关闭TCP 连接 ###TCP  ####TCP和UDP 区别连接无连接 有差错控制无差错控制  有无拥塞控制Java中的实现 socket/serverSocket  DatagramSocket DatagramPacket 可靠的UDP RUDP 传输">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://brijoe.github.io/2018/04/13/Android知识点总结/"/>
+
+
+
+
+
+  <title>Android技术点总结 | Brijoe的博客</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Brijoe的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">brijoe.github.io</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://brijoe.github.io/2018/04/13/Android知识点总结/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Brijoe">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Brijoe的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Android技术点总结</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-13T21:01:50+08:00">
+                2018-04-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/04/13/Android知识点总结/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count gitment-comments-count" data-xid="/2018/04/13/Android知识点总结/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>##计算机网络<br>浏览器一次请求URL过程<br>解析主机名 查询DNS获取IP 获得端口号 发起TCP连接 发送HTTP GET报文  读取响应报文  关闭TCP 连接</p>
+<p>###TCP </p>
+<p>####TCP和UDP 区别<br>连接无连接 有差错控制无差错控制  有无拥塞控制<br>Java中的实现 socket/serverSocket  DatagramSocket DatagramPacket</p>
+<p><strong>可靠的UDP</strong></p>
+<p>RUDP 传输 IP 网络间的电话信号<br>相当于在UDP基础上做了可靠性机制，保证尽量可靠，类似于 TCP 的重发机制和拥塞控制算法，同时尽量避免TCP的各种复杂设计以及资源消耗，用于实时音视频传输，例如WebRTC等项目。<br>QUIC融合了包括TCP，TLS，HTTP/2等协议的特性，但基于UDP传输。QUIC的一个主要目标就是减少连接延迟，一种新的传输层协议。</p>
+<p>####TCP 三次握手四次挥手<br>各个状态的含义 close_wait（被动关闭方）  time_wait(主动关闭方)<br>time_wait 保证ACK丢失后有机会可以重发，2msl时间原因 保证旧数据包 超期被遗弃，保证数据包不错乱。<br>不能两次握手原因：被动连接一方B接受到A延时过来的SYN，然后发送确认后就建立连接，此时A可能已经关闭，连接建立是无效的，所以必须再有一次确认。</p>
+<p>###流量控制机制<br>是点对点的控制，<br>成块数据流  滑动窗口<br>交互式数据流 捎带ACK(将要发送的数据和上一次确认ack 这个时间是200ms)及 Nagle算法</p>
+<p>###拥塞控制机制<br>慢开始算法（拥塞窗口指数增长）、拥塞避免算法（拥塞窗口+1）、快重传（接收方接收到失序报文，立即发送重复确认，接收方控连续收到三个重复确认后重发丢失报文段）、快恢复ssthresh门限减半后，并不执行慢启动，因为此时不认为拥堵（因为收到了确认），将拥塞窗口置为门限值后采用拥塞避免算法。</p>
+<p>###四大定时器<br> 重传定时器 ，坚持定时器(零窗口死锁)，保活定时器（用于长连接），2MSL定时器（time _ wait）</p>
+<p>###GET/POST 区别<br>语义上区别URL长度限制<br>POST 上传文件原理<br>contentType:mutipart/form-data<br>多部分上传 拼接换行符还有分隔符<br> 多文件上传  拼装多个部分<br> 大文件上传 采用socket ， 不一次性读取，利用缓冲流一次读取指定字节长度，依次上传<br> 分块上传  本地利用RandomAccessFile 分割读取文件，并将分割起始位置和分块大小告诉服务端，启动线程池,多线程发送请求,服务端根据发送的信息，重新拼装原始文件。</p>
+<p>多线程下载，range范围请求 服务端返回206状态码 RandomAccessFile 组装。</p>
+<p>断点续传原理：先请求文件大小，设置RandomAccessFile 大小,还是将下载进度保存在数据库中，暂停时将下载进度数值保存在sqlite数据库中，下载完成删除此条记录。</p>
+<p>###HTTP 缓存规则<br>强制缓存优先级高于对比缓存</p>
+<p>####强制缓存<br>响应头 Expries（服务器绝对时间）/Cache-control（相对时间）被记录到缓存数据库当中<br>cache-control 会重写 exprires （no-cache:使用对比缓存 no-store:完全不适用缓存）</p>
+<p>####对比缓存<br>Last-Modified(响应)/If-Modified-Since（请求）<br>Etag(响应)/If-None-Match（请求）（优先级高于Last-Modified/If-Modified-Since）资源唯一标识</p>
+<p>####Etag的作用<br>1 解决文件修改但内容无变化，<br>2.1s内修改频繁但是修改时间只能精确到秒<br>3.无法精确得到修改时间</p>
+<p>##HTTP1.0 1.1 2.0<br>1.0 1.1 1.1增加默认keep-alive<br>2.0<br>多路复用，二进制分帧，首部压缩<br>所有数据流公用一个连接，减少TCP连接数量，应用层(HTTP/2)和传输层(TCP or UDP)之间增加一个二进制分帧层，headFrame dataFrame</p>
+<p>###Cookie 和 session<br>会话cookie (不带过期时间)持久cookie（带过期时间）<br>set-cookie(响应)/cookie（请求）<br>一个客户端，一个服务端，session依赖于cookie 如果cookie被禁用的话则需要依赖1.url重写机制来传递session id 2 . 表单隐藏域。</p>
+<p>###HTTP的长连接<br>  TCP的keep alive是检查当前TCP连接是否活着，会发包；HTTP的Keep-alive是要让一个TCP连接活久点,保持连接不释放，避免再次建立连接时产生的消耗。</p>
+<h3 id="HTTP-HTTPS"><a href="#HTTP-HTTPS" class="headerlink" title="HTTP HTTPS"></a>HTTP HTTPS</h3><p>HTTP 内容在TCP 连接中发送的是明文，如果通道被监听，内容会泄露。<br>HTTPS 具体通信过程描述<br>首先建立TCP连接 port 443–&gt; SSL握手协商过程 –&gt;发送加密请求/响应—关闭SSL–关闭TCP </p>
+<p>####SSL握手过程 </p>
+<ol>
+<li>客户端发送随机数1（用于生成对话秘钥）+支持的加密算法(例如RSA（非对称加密用于秘钥交换）AES(加密消息流)支持协议版本) </li>
+<li>服务端发送随机数2（用于生成对话秘钥），和服务器证书（包含非对称加密的公钥）,并确认加密方法</li>
+<li>客户端验证证书，如果证书不是可信机构颁布，或证书域名与实际域名不符，或者证书已经过期，就会向访问者显示一个警告，是否继续通信如果成功 发送用服务器公钥加密的随机数3(防止窃听) 客户端结束握手</li>
+<li>服务端用私钥解密出随机数3 用私钥加上加密算法进行加密 生成会话秘钥 发送给客户端 结束握手</li>
+</ol>
+<p>此时双方都各自持有了 1，2，3（协商的是这个随机数） 三个随机数，三个随机数通过一个密钥导出器最终导出一个对称密钥，保证尽可能随机秘钥不被猜出来。之后采用对称加密算法 例如AES ,对消息体进行加密操作，加密后的内容通过TCP 连接发送。</p>
+<p>接下来的报文都用双方协定好的加密方法和密钥，进行对称加密通讯。</p>
+<p>##设计模式</p>
+<p>###单一职责<br>一个类尽量保证职责单一。</p>
+<p>###里式替换<br>子类可以扩展父类的功能，但不能改变父类原有的功能</p>
+<p>###依赖倒置原则<br>高层模块不应该依赖低层模块，二者都应该依赖其抽象；抽象不应该依赖细节；细节应该依赖抽象。<br>面向接口</p>
+<p>###接口隔离原则<br>各个接口要尽量单一职责</p>
+<p>###迪米特法则<br>类之间减少耦合</p>
+<p>###开闭原则<br>对扩展开发，对修改关闭 ，尽量通过扩展软件实体的行为来实现变化，而不是通过修改已有的代码来实现变化。</p>
+<p>#算法数据结构</p>
+<p>##常用公式<br>卡特兰数 解决括号匹配 出栈序列可能数计算等 问题</p>
+<p>##贪心算法<br>区间问题（去掉最少区间，保证区间不重叠）饼干分配</p>
+<p>##动态规划<br>斐波那契 跳台阶问题</p>
+<p>##排列组合<br>全排列（有无重复元素），组合（有无重复元素），子集</p>
+<p>##数字<br>二进制中1的个数，无限循环小数判定（gcd简化分数，看是否分母中有2，5以外的因子）<br>不用+运算符做加法(位运算) n!阶乘尾部的0个数</p>
+<p>##数组<br>回形打印二维数组（遍历规则），二维数组查找(结束条件)<br>最大子序列和（连续），dp[i]=max(dp[i-1]+nums[i],nums[i])<br>最长上升子序列(不连续)  LIS[i] = max{1,LIS[k]+1}，其中，对于任意的k&lt;=i-1，arr[i] &gt; arr[k]</p>
+<p>##字符串<br>字符串旋转，循环移动位置，判断回文字符串，判断回文整型数，字符串翻转，字符串转int(符号，空格，溢出等)，替换空格，最长不重复子串，最长回文串，最长回文子序列，最长公共子串 最长公共序列  最短编辑距离，字符串匹配的 朴素算法KMP算法，计算字符串相似度（最小编辑距离）</p>
+<p>##链表<br>判断链表是否相交，删除链表结点，链表中倒数第K个结点，反转链表，合并排序链表，判断是否有环，找出环的入口结点</p>
+<p>##栈<br>括号匹配，包含min函数的栈，两个栈实现队列，两个队列实现栈 ，栈的翻转</p>
+<p>##二叉树<br>前中后序遍历递归非递归解法 层次遍历 Z形遍历 求最大深度 判断是否平衡 相同树，镜像二叉树判定，反转二叉树 树的子结构  等于某一个值的路径,路径和 序列化和反序列化()</p>
+<p>二叉搜索树转双向链表(中序遍历+链表拼接)</p>
+<h2 id="查找"><a href="#查找" class="headerlink" title="查找"></a>查找</h2><p>顺序查找 二分查找及其6种变体 旋转数组问题（找指定元素，最小元素 有重复元素处理） 利用哈希表辅助查找(two sum)  二叉排序树查找</p>
+<p>##排序<br>各种排序算法书写（冒泡，选择，插入） 以及时空复杂度，稳定性<br>重点 快速排序 partion函数 归并Merge函数<br>计数排序  数据k问题 （topK  kth large,数组划分）</p>
+<p>##其他<br>图 B/B+树</p>
+<p>#Java 重点</p>
+<p>###基本数据类型<br>boolean(1/8)(false)<br>byte(1B)(0)（null）<br>short(2B)(0)<br>int(4B)(0)<br>long(8B)(0)<br>float(4B)(0)<br>double(8B)（0）</p>
+<p>###合法变量名<br>变量必须必须字母、下划线“_“、或$符号开头，可以包括数字，但不能以数字开头。</p>
+<p>###继承<br>extends 单个父类 implements 多个接口<br>super this<br>子类初始化默认调用父类构造方法<br>父类如果没有明确的构造方法，需要子类去显示调用super() </p>
+<p>###接口和抽象类<br>1）抽象类可以提供成员方法的实现细节，而接口中只能存在public abstract 方法；<br>2）抽象类中的成员变量可以是各种类型的，而接口中的成员变量只能是public static final类型的；<br>3）接口中不能含有静态代码块以及静态方法，而抽象类可以有静态代码块和静态方法；<br>4）一个类只能继承一个抽象类，而一个类却可以实现多个接口。<br>java 1.8 可以有 接口可以有默认方法，静态方法。</p>
+<p>###方法重载和方法重写<br>静态分派(多分派)和动态分派(单分派)<br>静态分派是编译期行为，类似重载；动态分派是运行期行为，类似重写。</p>
+<p>###泛型<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">public static void main(String[] args) &#123;</span><br><span class="line">        Father father = new Father();</span><br><span class="line">        Father son = new Son();</span><br><span class="line">        father.hardChoice(new _360());</span><br><span class="line">        son.hardChoice(new QQ());</span><br></pre></td></tr></table></figure></p>
+<p>结果<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Father choose 360</span><br><span class="line">Son choose QQ</span><br></pre></td></tr></table></figure></p>
+<p>编译期间 根据方法静态类型（Father）和参数两个宗量，选择了 静态类型 father.hardChoice(360) father.hardChoice(QQ)<br>运行期间 根据调用者实际类型一个宗量 确定出应 son.hardChoic(QQ)</p>
+<p>###异常<br>throws 方法上  throw new Exception(） 方法内部<br>如何自定义异常 继承自Exception</p>
+<p>###泛型<br>编译阶段类型擦除，泛型通配符上限和下限<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">上限：&lt;? extends T&gt; ?是T和T的子类</span><br><span class="line">下限：&lt;? super T&gt; ?是T和T的父类</span><br></pre></td></tr></table></figure></p>
+<p>函数参数传递， 基本类型/引用类型 引用的本质，函数调用过程描述<br>接口和抽象类  泛型<br>方法重载和方法重写</p>
+<p>###equals和hashCode重写规则</p>
+<p>##JVM相关</p>
+<p>###类的加载过程<br>Person p=new Person();<br>检查class是否存在并加载，不存在无法编译通过，否则加载到内存，</p>
+<p>###JVM构成及内存划分<br>JVM 构成（类加载器，执行引擎，内存区，本地方法接口）<br>内存区构成（堆区（共享），方法区（运行时常量池）（共享），虚拟机栈（私有），本地方法栈（私有），程序计数器（私有））</p>
+<p>###堆内存GC机制<br>引用计数 无法解决循环引用问题<br>可达性分析算法  GCroot (虚拟机栈中引用的对象，本地方法栈中引用的对象，方法区中类静态属性引用，常量引用的对象)这些区域GC不管。</p>
+<p>####标记清除<br>(产生大量不连续碎片) </p>
+<p>####复制<br>针对新生代(A/B 每次只利用一半A，然后将存活对象复制到另一半B，清空A) 针对新生代</p>
+<p>####标记整理<br>针对老年代 在标记清除算法基础上，不直接清除，将存活对象聚集到一起，移除边界外的要回收对象</p>
+<p>####分代收集<br>新生代(Eden s1 s2:8:1:1)(MinorGC) :老年代(FullGC) 1:2</p>
+<p>###类加载器机制 双亲委托<br>双亲委托描述，判定两个类是否一致<br>Android类加载器 PathClassLoader DexClassLoader 区别是否有优化目录(只能是内部存储)<br>PathClassLoader 加载的是(优化之后放在系统目录/data/dalvik-cache)系统优化目录</p>
+<p>###集合框架 </p>
+<h4 id="基本架构"><a href="#基本架构" class="headerlink" title="基本架构"></a>基本架构</h4><p>顶级接口  Collection Map, List set等继承自 Collection接口</p>
+<p>####ArrayList,LinkedList,Vector, CopyOnWriteList<br>arrayList 数组 扩容等<br>linkedList 双向循环链表 无扩容<br>vector get()set()方法加了synchronized 同步 扩容</p>
+<p>####HashMap,LinkedHashMap, concurrentHashMap<br>基本结构，如果扩容（size&gt;）查找时间复杂度，如何保证均匀哈希 hash&amp;(table.length-1)<br>HashTable 并发后的hashMap 加了同步操作<br>HashSet 利用了HashMap 只利用了key value=固定值（Object）<br>LinkedHashMap LruCache如何实现Lru缓存<br>concurrentHashMap 分段锁 如何分段 put get 操作，读操作做的优化,不可变final<br>默认16个segment segment extends ReentrantLock{table,hashEntry(value是volatile,key，hash,next都是final)} 分段锁，并独立加锁 写操作加锁，读操作不加锁</p>
+<p>####SparseArray &amp;&amp; sparseMap</p>
+<p>###并发编程<br>多线程实现 同步方法  synchronized retreenLock volatile wait/notify<br>CAS  </p>
+<p>###反射 泛型 拆箱/装箱<br>反射理解及使用 泛型描述 </p>
+<p>##深浅拷贝<br>浅拷贝 对于引用类型只拷贝了引用，对象实体还是同一份<br>深拷贝 将堆区内容直接复制了一份</p>
+<p>##线程池</p>
+<h3 id="newFixedThreadPool"><a href="#newFixedThreadPool" class="headerlink" title="newFixedThreadPool"></a>newFixedThreadPool</h3><p>固定数量 核心=最大 无回收 加速响应</p>
+<h3 id="newCacheThreadPool"><a href="#newCacheThreadPool" class="headerlink" title="newCacheThreadPool"></a>newCacheThreadPool</h3><p>数量不定的 无核心线程 最大线程数量Int.Max 没有排队情况<br>超时时间60s  大量耗时较少的任务</p>
+<p>###ScheduledThreadPool<br>执行定时任务的 执行定时任务和固定周期任务</p>
+<p>###SingleThreadExecutor<br>只有一个核心线程的  核心=最大=1 无回收 无界任务队列所有任务排队执行.<br>基本原理概述：<br>线程重用<br>在worker的run方法中，while循环，执行runnable 或者从阻塞队列中取得任务，所有线程其实共享了阻塞队列,实现了线程并发执行。<br>超时回收（非核心线程）的实现<br>（核心线程数也可以设置标记超时退出）如果当前线程池的线程数大于核心池大小corePoolSize或者允许为核心池中的线程设置空闲存活时间，则调用work.poll(time,timeUnit)来取任务，这个方法会等待一定的时间，如果取不到任务就返回null,那么run方法while循环终结，之后执行线程退出操作。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">private final class Worker implements Runnable &#123;	</span><br><span class="line">	final Thread thread;</span><br><span class="line">	//任务的runnable</span><br><span class="line">	Runnable firstTask;</span><br><span class="line"></span><br><span class="line">	Worker(Runnable firstTask) &#123;	</span><br><span class="line">		this.firstTask = firstTask;</span><br><span class="line">		//这里将this传入 thread.start() 执行开启了 run--&gt;runWorkder</span><br><span class="line">		this.thread = getThreadFactory().newThread(this);</span><br><span class="line">	&#125;	</span><br><span class="line">	public void run() &#123;</span><br><span class="line">		runWorker(this);</span><br><span class="line">	&#125;	</span><br><span class="line">	final void runWorker(Worker w) &#123;</span><br><span class="line">		Runnable task = w.firstTask;</span><br><span class="line">		w.firstTask = null;	</span><br><span class="line">		while (task != null || (task = getTask()) != null)&#123;</span><br><span class="line">			task.run();</span><br><span class="line">			task=null;//实际在try/catch/finally</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">	private Runnable getTask() &#123;  </span><br><span class="line">	</span><br><span class="line">		  	if(一些特殊情况) &#123;  </span><br><span class="line">		        return null;</span><br><span class="line">		    &#125;</span><br><span class="line">		    Runnable r = workQueue.take();   </span><br><span class="line">	     	return r;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	private boolean addWorker(Runnable firstTask, boolean core) &#123;  </span><br><span class="line">  	int wc = workerCountOf(c);   </span><br><span class="line"></span><br><span class="line">   if (wc &gt;= (core ? corePoolSize : maximumPoolSize)) &#123;  </span><br><span class="line">         return false;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    w = new Worker(firstTask);   </span><br><span class="line">	 final Thread t = w.thread;</span><br><span class="line">    t.start();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>try catch finally 执行顺序 如何记忆</p>
+<p>###JNI开发<br>java 调用 C/C++  C/C++ 调用java<br>开发流程，java如何调用到C/C++ </p>
+<p>####注册方法,java-&gt;native<br><strong>静态注册 </strong><br>根据名称来查找方法效率低<br><strong>动态注册 </strong><br>指定要注册的类，以及方法数组methods，jni_onload里拿到从JavaVM获取JNIEnv，找到类<br>jclass,<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">static const char* const kClassName=&quot;com/exmple/ndk/NativeNCK&quot;;</span><br><span class="line">JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved)&#123;</span><br><span class="line">    JNIEnv* env = NULL; //注册时在JNIEnv中实现的，所以必须首先获取它</span><br><span class="line">    jint result = -1;</span><br><span class="line">    if((*vm)-&gt;GetEnv(vm, (void**)&amp;env, JNI_VERSION_1_4) != JNI_OK) //从JavaVM获取JNIEnv，一般使用1.4的版本</span><br><span class="line">      return -1;</span><br><span class="line">    myClass = (*env)-&gt;FindClass(env, kClassName);</span><br><span class="line">    if(myClass == NULL)</span><br><span class="line">    &#123;</span><br><span class="line">      printf(&quot;cannot get class:%s\n&quot;, kClassName);</span><br><span class="line">      return -1;</span><br><span class="line">    &#125;</span><br><span class="line">    if((*env)-&gt;RegisterNatives(env,myClass,gMethods,sizeof(gMethods)/sizeof(gMethods[0]))&lt;0)</span><br><span class="line">    &#123;</span><br><span class="line">      printf(&quot;register native method failed!\n&quot;);</span><br><span class="line">      return -1;</span><br><span class="line">    &#125;</span><br><span class="line">    printf(&quot;--------JNI_OnLoad-----&quot;);</span><br><span class="line">    return JNI_VERSION</span><br></pre></td></tr></table></figure></p>
+<p>####native方法调用Java方法优化<br><strong>使用时缓存</strong><br>类似于单例方法，设置全局变量将查找到的method field,class 保存到变量中<br><strong>静态初始化时缓存</strong><br>java static代码块中,在 initIDs当中查找到Java类的 methoId,保存在全局变量当中。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"> public static native void initIDs();  </span><br><span class="line">static &#123;</span><br><span class="line">       System.loadLibrary(&quot;AccessCache&quot;);</span><br><span class="line">       initIDs();//这个</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure></p>
+<p>##hash算法，Base64 加解密算法<br>摘要 数字签名（对原始内容进行hash摘要然后进行私钥加密） 数字证书（包含公钥以及一些机构和身份信息等）</p>
+<p>###hash算法<br> md5（32位16进制字符串） Sha（秘钥长度更长，更加安全） Mac（包含秘钥，更加安全）<br> 散列算法，变换成固定长度的输出，该输出就是散列值</p>
+<p>###对称加密算法<br> 加解密用同一个秘钥 DES（弱加密）AES（强加密）等</p>
+<p>###非对称加密算法<br>加解密用不同的秘钥(私钥加密公钥解密) RSA、DSA</p>
+<p>###Base64 编码算法<br>6位一个base64单元，3个字节需要用4个Base64单元的可打印字符来表示，可打印字符包括字母A-Z、a-z、数字0-9 ，这样共有62个字符，还有+/两个字符。A-&gt; QQ== （01000001-&gt;01000001(补0)0000    ）最后补足两个==</p>
+<p>#Android</p>
+<p>##系统架构<br>应用层，framework层，一些openGL库，SQlite库等，kernal层（进程调度等系统核心机制部分）</p>
+<p>##四大组件<br>Activity 生命周期 启动模式<br>Service 生命周期 启动/绑定的区别<br>广播的两种注册，哪种情况下不能监听到广播</p>
+<p>##重要控件</p>
+<p>###ListView<br>两级缓存 activeView缓存屏幕上可见的view scrapView<br>每种childView布局类型都会单独启用一个RecycleBin缓存机制<br>AbsListView的obtainView obtainView方法调用了adapter的getView 方法。<br>局部刷新做法：不要直接调用notifyDataChanged。<br>解决图片错位 重复，闪烁问题，convertView复用，ViewHolder到view.</p>
+<p>###RecyclerView<br>RecyclerView 可以设置各种，横向 纵向,网格布局，标准化了ViewHolder(静态内部抽象类)<br>效率上并没有显著提升，只是相比List更加灵活而已。</p>
+<p>###ScrollView<br>ScrollView 继承 FrameLayout，只允许一个子view，通常是一个垂直向的LinearLayout,包裹想要添加的内容，需要将子View 作为一个整体测量和布局，如果设置多个只有第一个生效，源码中可以看到痕迹。</p>
+<p>###webview<br>4.4 之前基于webkit内核 之后基于chrome内核<br>可以加载js,html 本地页面 以及网络页面。<br>webView 支持的缓存<br>浏览器默认缓存，appCache(可以由服务端指定配置，根据需求来缓存特定资源), dom Storage(存储k-v,session,local(类似于Android sp))数据库的缓存（复杂关系表） 虚拟文件系统（webView不支持）<br>webViewChromeClient<br>WebViewClient主要帮助WebView处理各种通知、请求事件的<br>WebChromeClient主要辅助WebView处理Javascript的对话框、网站图标、网站title、加载进度<br>webViewClient(有拦截方法)<br>前端页面加载：图片合并减少请求次数（雪碧图），将静态资源部署到CDN网络避开拥堵，加快页面读取，<br>业务JS文件尽量放在html末尾，防止html dom解析阻塞,加快主要内容渲染。<br>客户端：在客户端刚启动时，就初始化一个全局的WebView待用，持有ApplicationContext，需要时直接调用,问题就是不能弹出系统级窗口，因为context不是Activity,没有持有token(IBinder对象).<br>将公用资源存储在本地，拦截请求，webViewClient 拦截请求 然后，获取输入流，封装webResource 返回。</p>
+<p>###SurfaceView<br>基本使用方法，与普通View 绘制的区别，解释双缓冲机制，<br>相当于多开辟一块内存区域用于绘制，lockCanvas获取一个backCanvas,绘制之后，解锁并提交，backCanvas–&gt;frontCanvas ,frontCanvas–&gt;backCanvas.</p>
+<p>###.9图<br>口诀：左上拉伸，右下内容！</p>
+<p>##新技术方案</p>
+<p>组件化/插件化/热修复</p>
+<p>###组件化方案<br>抽象出基础库，抽象出独立的业务库，lib库。<br>业务库声明为独立的application,根据setting.gradle debug动态指定是否调试模式，动态设置library,还是application 模式。<br>便于多人并行开发。</p>
+<p>###插件化方案<br>没在项目中用 主要是没有这方面需求但是去了解过<br>资源加载，apk Activity生命周期管理  ClassLoader管理（每个单独一个 保存起来map(dexPath,DexClassLoader)）<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">DexClassLoader dexClassLoader = new DexClassLoader(mDexPath,  </span><br><span class="line">              dexOutputPath, null, localClassLoader);  </span><br><span class="line">Class&lt;?&gt; localClass = dexClassLoader.loadClass(className);</span><br></pre></td></tr></table></figure></p>
+<p>###热修复方案<br>讲下AndFix和nuwa对比</p>
+<p>####AndFix实现<br>1、新增方法或者修改，删除方法均可以hot fix<br>2、新增类并且调用，app异常退出<br>3、在loadPatch之后，删除手机中的xxx.apatch文件，fix任然有效，框架保留了缓存（data/data/com.eular.andfix/files）<br>成功率大概在一半左右，不是特别可靠，这种方案有替换的可能性，但是可以作为一个快速接入的研究。<br>存在问题：每次发布需要变更path名称，<br>所以作为一种可选方案接入，最终还是依靠质量检测以及全量发包。</p>
+<p>####nuwa实现<br>处理dex加载问题，防止类被打上验证选项而无法替换<br>dexElements 数组合并，解决多dex加载合并<br>虚拟机dex-odex优化过程中，是否有引用其他dex当中的类，如果没有就会打验证选项，在所有宿主类的构造方法中引用一个hack类（不在同一个dex中），这种方案具有一定的可侵入性。<br>不支持gradle高版本，如果一个类使用私有构造方法，没有<init><cinit>字节码，那么无法插入输出语句，导致无法替换，类混淆之后很多字节码中都没有&lt; init &gt;或者&lt; clinit &gt;。<br>缺少补丁签名过程和客户端安全校验过程，需要修改gradle脚本以及增加客户端脚本，太操蛋。</cinit></init></p>
+<p>###tinker实现<br>加载过程与QQ空间热修复方案类似，将dex文件插入到DexPathList 中 dexElements的前面。<br>微信的方案，基本原理是差分生成pach.dex，然后合并成新的class.dex,重点是DexDiff算法，根据dex文件结构来比较差异，比较复杂，需要在客户端合并。但是接入流程较为复杂，具有一定侵入性，修改Manifest文件，配置一堆参数，但是较为稳定。</p>
+<p>##项目编译过程</p>
+<ol>
+<li>AIDL 处理 .aidl— .java 文件</li>
+<li><p>AAPT 编译资源，只有 assets(2.3之前有限制，以后没有大小限制) 图片 raw 保持原状，raw会生成 id. res/values目录下的字符串信息被编译进了resources.arsc资源索引文件中,res下面的布局 动画等被编译成二进制xml.<br>并生成了R.java 文件前者保存的是一个资源索引表，后者定义了各个资源ID常量，供在代码中索引资源。</p>
+</li>
+<li><p>编译class .java –&gt;.class</p>
+</li>
+<li>class -&gt; dex （R.java 文件在dex）</li>
+<li>apkBuilder 包装成一个apk文件。</li>
+<li>对apk进行签名，jarSinger</li>
+<li>正式版进行zipalign 对齐操作，加快读取速度。内存对齐（字长为块，将数据移动都块的开始位置，减少跨块处理）</li>
+</ol>
+<p>###R文件结构<br>八位十六进制整数型 0xPPTTNNNN<br>所有的资源需要通过一个唯一的id来访问<br>PP - the resource package id (00-02: system, 7f: application, 03-7e: reserved)<br>TT - the resource type id (types are ‘attr’, ‘layout’, ‘string’ and etc.)<br>NNNN - the resource entry id</p>
+<p>##签名过程</p>
+<p>Keytool是一个Java数据证书的管理工具 ,Keytool将密钥（key）和证书（certificates）存在一个称为keystore的文件中,Android studio 中是jks格式。</p>
+<p>签名过程只有生成一个META-INF 文件夹下面只有 MAINIFEST.MF CERT.SF  CERT.RSA</p>
+<p>MANIFEST.MF：保存除META-INF文件以外其它各文件的SHA-1+base64编码后的值。<br>CERT.SF：在SHA1-Digest-Manifest中保存MANIFEST.MF文件的SHA-1+base64编码后的值，在后面的各项SHA1-Digest中保存MANIFEST.MF各子项内容SHA-1+Base64编码后的值<br>CERT.RSA/DSA/EC：保存用私钥计算出CERT.SF文件的数字签名、证书发布机构、有效期、公钥、所有者、签名算法等信</p>
+<p>校验过程 如果更改了资源，那么MF文件不通过。<br>如果更改了MF，那么SF不通过。<br>更改了SF 则 RSA 不通过。因为私钥无法获知，始终无法匹配。</p>
+<p>##系统启动过程</p>
+<p>###Bootloader引导<br>加载引导程序</p>
+<p>###Linux Kernel启动</p>
+<p>###Init进程<br>一个由内核启动的用户级进程,init 进程解析 init.rc脚本 然后根据脚本的命令启动一系列服务 pid=0</p>
+<p>###ServiceManager 进程<br>ServiceManager，所有服务的DNS服务器，管理系统中的各种服务，比如 IMS ，AMS，PMS, WMS。<br> 主要工作：</p>
+<ol>
+<li>打开/dev/binder设备，并在内存中映射128K的空间。</li>
+<li>通知Binder设备，把自己变成context_manager</li>
+<li>进入循环，不停的去读Binder设备，看是否有对service的请求，如果有的话，就去调用svcmgr_handler函数回调处理请求。</li>
+</ol>
+<p>ServiceMannager 优先于 Zygote启动，在 init.rc 脚本的顺序中。</p>
+<p>###Zygote 进程<br>Zygote让Dalvik虚拟机共享代码、低内存占用以及最小的启动时间成为可能。Zygote是一个虚拟器进程，正如我们在前一个步骤所说的在系统引导的时候启动。预装载各种系统类和共享资源，实现共享。两个主要模块，一个是 socket服务端，接受命令，启动新的虚拟机，另外一个就是Framework共享类和共享资源。</p>
+<p>###SystemServer 进程<br>zygote 通过 fork出一个SystemServer，(fork子进程pid=0 否则为父进程，拥有同样的代码环境)，这种模式就是典型的写时复制模式<br>在开始执行启动服务之前总是会先尝试通过socket方式连接Zygote进程，在成功连接之后才会开始启动其他服务。</p>
+<p>特别注意：<strong>SystemServer进程与Zygote进程之间是通过Socket的方式进行通讯的，因为通讯的内容比较简单，所以不需要太复杂。</strong></p>
+<p>main 方法 init1（）native init2() Java 方法启动各种服务线程</p>
+<p>###Launcher APP 进程</p>
+<p>SystemServer进程 –&gt; startOtherService方法 –&gt; ActivityManagerService的systemReady方法 –&gt; startHomeActivityLocked方法 –&gt; ActivityStackSupervisor的startHomeActivity方法 –&gt; 执行Activity的启动逻辑，执行scheduleResumeTopActivities()方法。。。。</p>
+<p><strong>隐式启动</strong><br>因为是隐士的启动Activity，所以启动的Activity就是在AndroidManifest.xml中配置catogery的值为：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public static final String CATEGORY_HOME = &quot;android.intent.category.HOME&quot;;</span><br></pre></td></tr></table></figure></p>
+<p>可以发现android M中在androidManifest.xml中配置了这个catogory的activity是LauncherActivity，所以我们就可以将这个Launcher启动起来了</p>
+<p>LauncherActivity中是以ListView来显示我们的应用图标列表的，并且为每个Item保存了应用的包名和启动Activity类名，这样点击某一项应用图标的时候就可以根据应用包名和启动Activity名称启动我们的App了。<br>当该Activity被加载完成后，最终会触发ACTION_BOOT_COMPLETED广播。</p>
+<p>##App启动过程<br>Launcher应用程序在启动过程中会通过PackageManagerService服务请求查询系统所有的已安装应用的包名，图标和应用名称等信息，然后填充到Launcher中的Adapter中，这样点击某一项应用图标的时候就可以根据该图标的包名和启动Activity的类名初始化Intent对象，然后调用startActivity(Intent)启动相关的应用程序了。</p>
+<p>Process.start<br>如果进程没有启动就执行启动<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">startViaZygote</span><br></pre></td></tr></table></figure></p>
+<p>向 Zygote进程进行 socket通讯，请求创建新的虚拟机，这个方法就是启动了AcitivtyThread进程并执行了ActivityThread的main方法，所以我们经常说的进程的启动方法就是ActivityThread的main方法就是这里体现的。</p>
+<p>##App安装过程<br>代码中执行intent.setDataAndType(Uri.parse(“file://“ + path),”application/vnd.android.package-archive”);可以调起PackageInstallerActivity；</p>
+<p>PackageInstallerActivity主要用于执行解析apk文件，解析manifest，解析签名等操作；<br>InstallAppProcess主要用于执行安装apk逻辑，用于初始化安装界面，用于初始化用户UI。并调用PackageInstaller执行安装逻辑；<br>InstallAppProcess内注册有广播，当安装完成之后接收广播，更新UI。显示apk安装完成界面；</p>
+<p>##WMS 简述</p>
+<p>WMS系统窗口管理的服务，负责全局窗口管理，全局事件管理派发<br>由SystemServer启动，系统关机时退出，异常时重启。<br>窗口token机制<br>Token机制 这里涉及到为什么<br>非Activity Context 能不能启动Dialog 为什么？<br>系统开机是的动画基本实现原理<br>比如直接通过OpenGL ES与SurfaceFling的配合来完成。这也从侧面告诉我们，要想在Android上显示UI，并不一定要通过WMS。</p>
+<p>##AMS简述<br>管理Activity和组件运行状态的服务，在系统启动时，创建一个线程来循环处理客户的请求。AMS 向ServiceManager 登记多种Binder Server,activity, memifo cpuinfo 等。</p>
+<p>##Dialog 显示过程<br>ApplicationContext 无法显示dialog 缺token 必须是Activity</p>
+<p>##Toast 显示过程</p>
+<p>Toast 内部有一个TN 跨进程与NMS通信，NMS控制 系统全局的Toast show hide ,</p>
+<p>通过回调然TN hide/show 利用handler进行线程切换，从Binder线程池 切换到 调用者线程。</p>
+<p>最终利用window.addView() 通知 WMS 添加窗口，最终移除。</p>
+<p>##Activity启动过程</p>
+<p>###Activity<br>startActivityForResult</p>
+<p>###Instrumentation<br>Instrumentation.execStartActivity</p>
+<p>###ActivityManagerNative </p>
+<p>ActivityManagerProxy对象的startActivity</p>
+<p>拼装参数 ，调用transact</p>
+<p>###SystemServer进程 </p>
+<p>AMS接受到请求，执行栈顶Activity的onPause方法</p>
+<p>ActivityStack<br>ActivityManagerService端的Activity对象–&gt;ActivityRecord</p>
+<p>###IApplicationThread</p>
+<p>####AppicationThread##schedulePauseActivity<br>通过ActivityManagerNative –&gt; ActivityManagerService实现了应用进程与SystemServer进程的通讯<br>通过AppicationThread() &lt;– IApplicationThread实现了SystemServer进程与应用进程的通讯</p>
+<p>发送了PAUSE_ACTIVITY_FINISHING消息，然后看一下sendMessage的实现方法</p>
+<p>###ActivityThread##handlePauseActivity</p>
+<p>###Instrumentation##callActivityOnPuase</p>
+<p>###Activity##performPause<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"> mFragments.dispatchPause();</span><br><span class="line"> mCalled = false;</span><br><span class="line"> onPause();</span><br><span class="line">...</span><br></pre></td></tr></table></figure></p>
+<p>回调到了Activity的onPause</p>
+<p>###ActivityManagerNative<br>ActivityManagerProxy对象的activityPaused</p>
+<p>###ActivityManagerService##activityPaused</p>
+<p>ActivityStack<br>实现了对栈顶Activity执行onPause 方法，而这个方法首先判断需要启动的Activity所属的进程是否已经启动，若已经启动则直接调用启动Activity的方法，否则将先启动Activity的应用进程，然后在启动该Activity。</p>
+<p>没启动通过Zygote启动<br>Zygote并通过socket通信的方式让Zygote进程fork除了一个新的进程，并根据我们刚刚传递的”android.app.ActivityThread”字符串，反射出该对象并执行ActivityThread的main方法。</p>
+<p>thread.attach(false)<br>AMS 初始化完成 application </p>
+<p>applicationThread 启动新的Activity</p>
+<p>Instrumentation 启动 </p>
+<p>activity performCreate  Instrumentation activity performOnstart </p>
+<p>Instrumentation activity performOnresume</p>
+<p>跨进程 AMS</p>
+<p>ActivityStack.stopActivityLocked</p>
+<p>上一个Activity的stop方法</p>
+<p>IApplicationThread.scheduleStopActivity 发送消息 H<br>ActivityThread.scheduleStopActivity()<br>执行真正的onStop方法</p>
+<p>###点击图标冷启动</p>
+<p>####隐式启动原因<br>这是因为Launcher程序启动的Activity一般都是启动一个新的应用进程，该进程与Launcher进程不是在同一个进程中，所以也就无法引用到启动的Activity字节码，自然也就无法启动该Activity了。</p>
+<p>###热启动<br>应用所在进程已经开启，所以不需要启动应用所在的进程了。</p>
+<p>##Activity销毁流程</p>
+<p>onPause –&gt; onRestart –&gt; onStart –&gt; onResume –&gt; onStop –&gt; onDestroy</p>
+<p>Activity的销毁流程是ActivityThread与ActivityManagerService相互配合销毁的</p>
+<p>##Service工作过程<br>启动过程<br>ContextImpl#startService –AMS -ActiveServices-ActivityThread#handleCreateService<br>service#onCreate  onStartCommand<br>绑定过程<br>ContextImpl#bindService –AMS  –ActiveServices ActivityThread#handleBindService</p>
+<p>##BroadCastRecevier 过程<br>静态注册由PMS完成，动态注册代码完成。</p>
+<p>1.广播接收者BroadcastReceiver通过Binder机制向AMS(Activity Manager Service)进行注册；<br>2.广播发送者通过binder机制向AMS发送广播；<br>3.AMS查找符合相应条件（IntentFilter/Permission等）的BroadcastReceiver，将广播发送到BroadcastReceiver（一般情况下是Activity）相应的消息循环队列中；</p>
+<p>4.消息循环执行拿到此广播，回调BroadcastReceiver中的onReceive()方法。<br>注意：应用未安装，或者被停止的应用无法接收到广播，因为默认加了3.1以后加了标记位，进程被杀死也无法接受到广播。如果启用需要添加include标记位。</p>
+<p>##ContentProvider过程</p>
+<p><strong>创建发布过程</strong></p>
+<p>当一个应用启动的时候，会最先执行ActivityThread#main方法，在会最先执行main方法中会创建ActivityThread实例，并开启主线程的消息队列，<br>然后在ActivityThread#attach中会远程调用AMS中的attachApplication，并且将ApplicationThread实例传递给AMS，ApplicationThread是一个Binder对象，<br>主要用于ActivityThread和AMS通信，接着会回到ApplicationThread#bindApplication,接着交给Ｈ处理绑定application,在handleBindApplication中， 先创建Application，在加载provider，最后调用Application的onCreate contentProvider 的onCreate 优先于 Application#onCreate()，发布到AMS当中，AMS 将其存储在ProviderMap 当中，供其他调用者调用。启动的ContentProvider 会保存在 mProviderMap （ArrayMap）中。</p>
+<p><strong>查找执行过程</strong></p>
+<p>过ContentResolver来访问ContentProvider中提供的数据，ContentResolver是一个抽象类，我们可以通过Context的getContentResolver来获取，实际上 获取的是ApplicationContentResolver，ApplicationContentResolver继承自ContentResolver，当ContentProvider所在的进程没有启动的时候，第一次访问时候，会触发ContentProvider的创建和其所在进程的启动，如果已经启动就直接从保存的 ArrayMap 当中取得ContentProvider。</p>
+<p>insert delete update query 方法 都是通过Binder来调用的，外界无法直接访问ContentProvider.<br>通过AMS 根据Uri来获取对应的ContentProvider的Binder接口 IContentProvider– 访问ContentProvider数据源。</p>
+<p>##Binder机制<br>什么是Binder</p>
+<ol>
+<li>直观来说，Binder是Android中的一个类，它继承了IBinder接口 </li>
+<li>从IPC角度来说，Binder是Android中的一种跨进程通信方式，Binder还可以理解为一种虚拟的物理设备，它的设备驱动是/dev/binder，该通信方式在linux中没有 .</li>
+<li>从Android Framework角度来说，Binder是ServiceManager连接各种Manager（ActivityManager、WindowManager，etc）和相应ManagerService的桥梁 </li>
+<li>从Android应用层来说，Binder是客户端和服务端进行通信的媒介，当你bindService的时候，服务端会返回一个包含了服务端业务调用的Binder对象，通过这个Binder对象，客户端就可以获取服务端提供的服务或者数据，这里的服务包括普通服务和基于AIDL的服务.<br>为什么要使用Binder<br>Binder的线程管理<br>Binder运行机制<br>###Binder的工作流程<br>ServiceManager向Binder注册为大管家(ioctl系统调用)，0–&gt;SM 创建一个binderNode<br>Service注册时，Binder驱动也记录 1-XXXManagerService<br>addService 发起了注册，ServiceManager泛起<br>Client请求服务，直接跟驱动交互，传递0引用和服务名称，驱动找到SM,SM 返回给具体服务句柄，给</li>
+</ol>
+<p> Native 实现:  IBinder,  BBinder, BpBinder, IPCThread, ProcessState, IInterface, etc<br>Java 实现:  IBinder, Binder, BinderProxy, Stub, Proxy.<br>Binder Driver: binder_proc, binder_thread, binder_node, etc.<br>Linux 下的进程间通信方式<br>共享内存，消息队列，管道</p>
+<p>一个应用多少个Binder线程 </p>
+<p>一个服务端进程最多15个Binder线程。</p>
+<p>Binder 如何实现安全性验证的</p>
+<p>应用层 framework层  native层<br>BPBiner BBinder 是什么<br>实名Binder  匿名Binder</p>
+<p>Android 种多种IPC方式的对比和比较</p>
+<p>Bundle  文件 Messager AIDL ContentProvider Socket</p>
+<p>Messager 使用和局限性 底层是AIDL</p>
+<p>Binder驱动：open(打开驱动) ioctl（命令交互） mmap （内存映射 ）<br>Native:<br>framework:ServiceManager ServiceManagerNative  IBinder </p>
+<p>##ANR<br>键盘5s,广播10s,服务20s</p>
+<h2 id="内存管理机制"><a href="#内存管理机制" class="headerlink" title="内存管理机制"></a>内存管理机制</h2><p>进程分类 以及 LOW Memeory Killer<br>前台可见交互  可见非前台不可交互  不可见服务进程  </p>
+<p>赋予不同的权重，当系统内存不足时按照权重来杀死。adj 值从 -17~15 数字越小进程级别越高。</p>
+<p><strong>匿名共享内存</strong></p>
+<p>基本原理 + 应用<br>Android系统中，APP端View视图的数据是如何传递SurfaceFlinger服务的呢？View绘制的数据最终是按照一帧一帧显示到屏幕的，而每一帧都会占用一定的存储空间，在APP端执行draw的时候，数据很明显是要绘制到APP的进程空间，但是视图窗口要经过SurfaceFlinger图层混排才会生成最终的帧，而SurfaceFlinger又运行在另一个独立的服务进程，其实利用匿名共享内存。</p>
+<p>与Linux共享内存的区别<br>Android匿名共享内存是基于Linux共享内存的，都是在tmpfs(基于内存的临时文件系统)文件系统上新建文件，并将其映射到不同的进程空间，从而达到共享内存的目的，只是，Android在Linux的基础上进行了改造，并借助Binder+fd文件描述符实现了共享内存的传递。</p>
+<p>##消息机制</p>
+<p>###Message<br>基本消息单元，内部有一个next域，用来指向下条消息，行成一个链表。</p>
+<p>###Handler<br> 理解为消息的具体发送和最终的执行者。<br> 发送消息前，构造一个Message（直接new或者从对象池中取obtain）<br> 对象池复用技术对象池最大值为50，避免了消息的频繁创建，节省内存提高了效率。<br> sendMessage()—- sendMessageAtTime–enqueueMessage（执行入队操作）</p>
+<p>###Looper<br>用于启动消息循环。Looper.loop()静态方法，ActivityThread 内部调用了 这个方法启动了主线程消息循环。内部关联有一个MessageQueue，looper 方法内部有一个 for(;;)循环，<br>不断调用 MessageQueue.next() 取得下一条消息并执行 msg.target.dispatchMessage<br>这里是执行的是Handler里面的方法。</p>
+<p>Looper papare方法 里面调用到了私有方法，初始化了一个Looper并设置到 ThreadLocal里面。 Looper的私有构造方法，里面初始化了MessageQueue.</p>
+<p>###MessageQueue</p>
+<p>enqueueMessage 操作 和next操作，<br>消息排队执行，延时消息按照先后插入 ，利用底层的 管道机制来唤醒/空闲等待操作。</p>
+<p>###异步消息<br>所谓的异步消息其实就是这样的，我们可以通过enqueueBarrier往消息队列中插入一个Barrier，那么队列中执行时间在这个Barrier以后的同步消息都会被这个Barrier拦截住无法执行。</p>
+<p>###为什么不会造成阻塞</p>
+<p>ActivityThread 并非继承自Thread，是Zygote进程孵化出来的进程，</p>
+<p>ActivityThread#main<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"> Looper.loop();</span><br><span class="line"></span><br><span class="line">throw new RuntimeException(&quot;Main thread loop unexpectedly exited&quot;);</span><br></pre></td></tr></table></figure></p>
+<p>Looper#loop<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Message msg = queue.next(); // might block</span><br><span class="line">           if (msg == null) &#123;</span><br><span class="line">               // No message indicates that the message queue is quitting.</span><br><span class="line">               return;</span><br><span class="line">           &#125;</span><br></pre></td></tr></table></figure></p>
+<p>(01)，应用程序先通过Looper.prepareMainLooper()来创建消息队列。在创建消息队列的过程中，会创建Looper对象，MessageQueue对象，并调用JNI函数；最终，通过管道来进入空闲等待状态。<br>(02)，当应用程序调用sendMessage()或其他类似接口发送消息时，消息会被添加到消息队列；并最终会先管道中写入内容，从而唤醒管道上处于空闲等待状态的主线程。<br>(03)，管道上的空闲状态的主线程被唤醒之后，就会读出消息队列的消息，然后通过dispatchMessage()来分发处理。最终，消息会通过handleMessage()来进行处理。<br> 主线程ActivityThread 调用Looper.prepareMainLooper方法 进行了主线程Looper的初始化。</p>
+<p>###Looper与Thread的关联<br>ThreadLocal 内部的Values类内部 table数组，<br>set方法首先取出当前Thread的 ThreadLocal.Values ，然后 以ThreadLocal 作为key,<br>要设置的值为value，存入数组 table[index]=ThreadLocal的弱引用对象reference, table[index+1]=value  那么每个Thread 就会有一个这样的对应关系。<br>get方法 取得当前Thread Values 数组，然后以this(当前的ThreadLocal对象)为key查找对应的value，达到线程隔离的目的。<br><strong>主线程ActivityThread 调用Looper.prepareMainLooper方法 进行了主线程Looper的初始化。</strong></p>
+<p>##触摸事件分发机制</p>
+<p>####基本路径<br>Activity–window–顶级View（DecorView）–ViewGroup–dispatchTouchEvent</p>
+<p>###Activity<br> dispatchTouchEvent  如果复写了没调用super. dispatchTouchEvent<br> 交由dispatchTouchEvent 处理，无法继续分发。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">if (ev.getAction() == MotionEvent.ACTION_DOWN) &#123;</span><br><span class="line">            onUserInteraction();</span><br><span class="line">        &#125;</span><br><span class="line">        if (getWindow().superDispatchTouchEvent(ev)) &#123;</span><br><span class="line">            return true;</span><br><span class="line">        &#125;</span><br><span class="line">        return onTouchEvent(ev);</span><br></pre></td></tr></table></figure>
+<p>Activity  onTouchEvent 根据顶级View的dispatchTouchEvent 来确定是否调用。只有当返回false时，才会有机会调用到。</p>
+<p>####ViewGroup基本分发过程<br>伪代码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">boolean dispatchTouchEvent(event)&#123;</span><br><span class="line"> if (action == MotionEvent.ACTION_DOWN) &#123;</span><br><span class="line">  //target置空  </span><br><span class="line">    if (target != null) &#123;  </span><br><span class="line">        target = null;  </span><br><span class="line">    &#125;  </span><br><span class="line">		//down总是会调用onInterceptEvent 来判读</span><br><span class="line">		//如果不允许拦截或者拦截函数为false</span><br><span class="line">		if(disallowIntercept||! onInterceptEvent(event))</span><br><span class="line">			child[]=getChildView();</span><br><span class="line">			for(int i=child.count-1;i&gt;=0;i--)</span><br><span class="line">				if(child[i]可见||child[i]有动画)&#123;</span><br><span class="line">				  if(点击区域落在child内)</span><br><span class="line">					  if(child[i].dispatchTouchEvent(event))&#123;</span><br><span class="line">					  		target =child[i];</span><br><span class="line">					  		return true;</span><br><span class="line">					  	&#125;</span><br><span class="line">			&#125; </span><br><span class="line">		&#125;</span><br><span class="line">&#125;</span><br><span class="line">//事件序列结束重置拦截位</span><br><span class="line">if(action==up||action==cancel)</span><br><span class="line">	disallowIntercept 重置；</span><br><span class="line">//没人处理自己来处理，事件序列均由自己处理</span><br><span class="line">if(target ==null)</span><br><span class="line">	//调用父类View 的dispatchTouchEvent</span><br><span class="line">	return super.dispatchTouchEvent(event);</span><br><span class="line"> //有子view处理，那么后续事件均有它处理，不在询问拦截（move up 事件）</span><br><span class="line">else	</span><br><span class="line">	return target.dispatchTouchEvent(event);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>####View基本分发处理过程</p>
+<p>伪代码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">boolean dispatchTouchEvent(event)&#123;</span><br><span class="line">	result=false;</span><br><span class="line">	if(OnTouchListener!=null&amp;&amp;view.enable)</span><br><span class="line">			reuslt=OnTouchListener.onTouch(event);</span><br><span class="line">	</span><br><span class="line">	//ontouch返回true,onTouchEvent方法得不到执行。</span><br><span class="line">	if(!result)</span><br><span class="line">	 result=onTouchEvent(event);	</span><br><span class="line">	return result;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">boolean onTouchEvent(event)&#123;</span><br><span class="line"></span><br><span class="line">	if(view.CLICKABLE||view.LONG_CLICKABLE)&#123;</span><br><span class="line">		switch(event.getAction())&#123;</span><br><span class="line">			case Action_UP:</span><br><span class="line">				 performClick()&#123;</span><br><span class="line">				 	if(onClickListener!=null)</span><br><span class="line">				 			onClickListener.onClick();</span><br><span class="line">				 &#125;</span><br><span class="line">		&#125;</span><br><span class="line">		return true;</span><br><span class="line">	&#125;</span><br><span class="line">	return false;</span><br><span class="line">	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>dispatchTouchEvent onTouchEvent 返回true，最终的表现也是dispatchTouchEvent 返回了true,终止事件传递。</p>
+<p>##View绘制原理</p>
+<p>ActivityThread#handleResumeActivity ……<br>WindowManagerGlobal#addView<br>ViewRootImpl#setView… requestLayout … </p>
+<p>performTraversal</p>
+<p>ViewRootImpl-performTraversal<br>performMeasure performLayout performDraw<br>MesasureSpec 高2位（模式） 低30位（值）<br>三种测量模式：不指定（系统内部）精确（精确数值，match_parent） 最大值(wrap_content)</p>
+<p>###measure<br><strong>测试规格</strong><br>普通view 有父视图MesureSpec 和自身的layoutParam指定，decorView 由窗口尺寸和自身的layoutParam决定。decorView 顶级view 继承自FrameLayout 里面嵌套了一个Linearlayout 垂直布局，下面是内容布局（anroid.id.content）。</p>
+<p>view measure方法是 final方法 不能重写(父容器在调用时提供了约束信息，还有一些内部逻辑，不能被修改) 内部调用到onMeasure方式，子类只能写onMeasure方法。ViewGroup本身没有重写onMeasure方式。<br>各个具体的viewGroup实现类 measureChild 测量子view.<br><strong>如何获取view最终宽高 </strong><br>onWindowFocusChanged view.post view TreeObserver 回调接口<br>getMeasureWidth/getMeasureHeight</p>
+<p>###layout</p>
+<p>用于计算view的位置。layout本身确定了自己的位置，内部调用了onlayout确定所有子view的位置,具体方法是setFrame 设定四角位置，顶点确定，则位置就确定了。<br>view viewGroup 默认都没有实现 onLayout 需要有子类具体实现。</p>
+<p>###draw<br>用于view绘制。</p>
+<p>ViewRootImpl##performDraw–ViewRootImpl##draw–drawSoftware-<br>View#draw<br>六个步骤<br>1.绘制背景 2.保存cavas为fading做准备 3.onDraw方法 绘制自己</p>
+<p>4.绘制子view disptachDraw 5.如果需要则绘制fading并恢复图层 6.绘制装饰 </p>
+<p>setWillNotDraw 设置notDraw 为true ，表示不进行自身绘制，ViewGroup默认启用了优化，当需要特别需要绘制自己时，需要显示关闭。</p>
+<p>###invalidate，postInvalidate &amp;&amp;requestLayout<br><strong>requestLayout</strong></p>
+<p>View调用requestLayout方法，会标记当前View及父容器，同时逐层向上提交，直到ViewRootImpl处理该事件，ViewRootImpl会调用三大流程，从measure开始，对于每一个含有标记位的view及其子View都会进行测量、布局、绘制。</p>
+<p><strong>invalidate</strong></p>
+<p>当子View调用了invalidate方法后，会为该View添加一个标记位，同时不断向父容器请求刷新，父容器通过计算得出自身需要重绘的区域，直到传递到ViewRootImpl中，最终触发performTraversals方法，进行开始View树重绘流程(只绘制需要重绘的视图)。<br>由于没有添加measure和layout的标记位，因此measure、layout流程不会执行，而是直接从draw流程开始。</p>
+<p><strong>postInvalidate</strong></p>
+<p>可以在非UI线程进行调用，本质是调用ViewRootImpl 方法，通过主线程的Hanlder 发送一条重绘消息，最终还是调用了invalidate.</p>
+<p><strong>inflate 构造方式</strong><br>两个重载</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">//内部inflate(resId,parent,parent!=null)</span><br><span class="line"> inflate(resId,parent) </span><br><span class="line">//布局Id，父容器，是否加的父容器。</span><br><span class="line"> inflate(resId,parent,true/false)</span><br></pre></td></tr></table></figure>
+<p>只要root==null，无视attachToRoot的值，创建temp对象，返回temp。<br>当root!=null时，分两种情况。一，attachToRoot==true，将temp添加到root中，并使用布局参数params，返回root。二，attachToRoot==false，为temp设置布局参数params，返回temp。</p>
+<p><strong>伪代码</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">View inflate(resId,parent,attachToRoot)&#123;</span><br><span class="line">	//根据resId 构造View</span><br><span class="line">	view temp=generateView(resId);</span><br><span class="line">	//root==null 直接返回</span><br><span class="line">	if(root==null)</span><br><span class="line">		return temp;</span><br><span class="line">	// root!=null,生成并设置参数</span><br><span class="line">	 layoutParam=generateParam(temp);</span><br><span class="line">	 temp.setLayoutParam(generateParam);</span><br><span class="line">	 // attachToRoot==true 加到root当中</span><br><span class="line">	if(attachToRoot==true)&#123;</span><br><span class="line">	  root.add(temp);</span><br><span class="line">	  return root;//返回root</span><br><span class="line">	&#125;</span><br><span class="line">	 return temp;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>##自定义View<br>构造函数<br>1，2，3个构造函数的调用<br>继承原有控件 继承view 继承 ViewGroup<br>继承View 考虑支持wrap_content属性，需要在内部的onMeasure方式，指定一个值，<br>考虑支持padding属性。<br>写过那些自定义控件 流式布局 关键词搜索</p>
+<p>##解决滑动冲突<br>三种 1.内外滑动方向不一致<br>2.滑动方向一致(内部是ListView)<br>下拉刷新的时候，如果content是ListView 需要做特殊处理，如果listView 可以继续向上滑动，那么父容器不拦截，否则父容器拦截，显示Header.<br>3.两种情况嵌套</p>
+<p>父容器外部拦截法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">onInterceptEvent(event)&#123;</span><br><span class="line">	intercepted=false;</span><br><span class="line">	int x = (int)event.getX();</span><br><span class="line">    int y = (int)event.getY();</span><br><span class="line">	switch(event.getAction())&#123;</span><br><span class="line">		case event.down:</span><br><span class="line">		intercepted=false;</span><br><span class="line">		break;</span><br><span class="line">		case event.move:</span><br><span class="line">		if(父容器需要拦截)</span><br><span class="line">			intercepted=true;</span><br><span class="line">		else</span><br><span class="line">			intercepted=false;</span><br><span class="line">		break;</span><br><span class="line">		case event.up:</span><br><span class="line">			intercepted=false;</span><br><span class="line">		break;</span><br><span class="line">	&#125;</span><br><span class="line">	 mLastXIntercept = x;</span><br><span class="line">    mLastYIntercept = y;</span><br><span class="line">    return intercepted；</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>子元素内部拦截法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">public boolean dispatchTouchEvent(MotionEvent event)&#123;</span><br><span class="line"> int x=(int)event.getX();</span><br><span class="line"> int y=(int)event.getY();</span><br><span class="line"> </span><br><span class="line"> switch(event.getAction())&#123;</span><br><span class="line">	 case MotionEvent.ACTION_DOWN:</span><br><span class="line">	  //设置父容器不允许拦截, disallowIntercept为true,父容器才有机会分发</span><br><span class="line">	  parent.requestDisallowInterceptedTouchEvent(true);</span><br><span class="line">	  break;</span><br><span class="line">	 case MotionEvent.ACTION_MOVE:</span><br><span class="line">	  int deltaX=x-mLastX;</span><br><span class="line">	  int deltaY=y-mLastY;</span><br><span class="line">	  if(父容器需要点击事件)&#123;</span><br><span class="line">	  //父容器允许拦截 disallowIntercept=false</span><br><span class="line">	  parent.requestDisallowInterceptedTouchEvent(false);</span><br><span class="line">	  &#125;</span><br><span class="line">	  break;</span><br><span class="line">	 case MotionEvent.ACTION_UP:</span><br><span class="line">	  break;</span><br><span class="line">	 default:</span><br><span class="line">	  break; </span><br><span class="line"> &#125;</span><br><span class="line">	 mLastX=x;</span><br><span class="line">	 mLastY=y;</span><br><span class="line"> return super.dispatchTouchEvent(event);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>判断 起始位置的水平距离和垂直距离的对比，哪个大水平距离大，父容器不拦截。</p>
+<p>###画笔的Xfermode图像混合模式<br>圆角图片，刮刮卡</p>
+<p>###shader着色器<br>相当于画笔工具，可以构造一个圆形的ImageView.</p>
+<p>##常用布局的Measure原理</p>
+<p>###LinearLayout measure过程<br>有weight无weight weightSum的影响<br>layout_weight的计算<br>layout_gravity gravity区别</p>
+<p>###RelativeLayout measure过程<br>横向纵向两次</p>
+<p>###FrameLayout measure过程</p>
+<p>##Bitmap 压缩 显示及优化处理</p>
+<p>inBitmap属性可以告知Bitmap解码器去尝试使用已经存在的内存区域</p>
+<p>使用inBitmap需要注意几个限制条件：</p>
+<p>在SDK 11 -&gt; 18之间，重用的bitmap大小必须是一致的，例如给inBitmap赋值的图片大小为100-100，那么新申请的bitmap必须也为100-100才能够被重用。从SDK 19开始，新申请的bitmap大小必须小于或者等于已经赋值过的bitmap大小。<br>新申请的bitmap与旧的bitmap必须有相同的解码格式，例如大家都是8888的，如果前面的bitmap是8888，那么就不能支持4444与565格式的bitmap了。</p>
+<p>压缩 inSampleSize 参数，缩小图片尺寸，那么加载内存就会减少很多。</p>
+<p>压缩图片的方式</p>
+<p>质量压缩  质量压缩只是改变其存储的形式的大小位深和透明度，不改变其在内存中的大小<br>采样率压缩 justDecodeBounds true/false 只获取宽高不加载图片像素数据到内存<br>insampleSize 设置采样率，改变图片在内存所占的像素数，改变了内存占用大小。</p>
+<p>图片终极压缩方案<br>压缩出来的清晰度和原图几乎差不多，压缩时间大概1秒钟左右</p>
+<p>第一步 采样率压缩，指定了最大尺寸1280*960，计算采样率<br>并根据图片的exif 获取图片的旋转角度，并用Matrix 旋转图片进行图片矫正<code>matrix.postRotate(photoDegree);</code></p>
+<p>第二步 指定最大图片大小 150KB，循环判断如果压缩后图片是否大于150kb,大于继续压缩<br>每次都减少10的质量,进行压缩质量探测<br><code>result.compress(Bitmap.CompressFormat.JPEG, quality, baos);</code></p>
+<p>第三步 然后进行JNI调用libjpeg库进行再次压缩，启用了霍夫曼参数优化，</p>
+<p>在默认的实现中，<br>我们使用质量压缩的话它的底层就是用skia引擎进行处理，加入我们调用bitmap.compress(Bitmap.CompressFormat.JPEG,…..) 他实际会 使用一个libjpeg.so 的动态库进行编码压缩。<br>android在进行jpeg压缩编码的时候，考虑到了效率问题使用了定长编码方式进行编码（因为当时的手机性能都比较低），而IOS使用了变长编码的算法——哈夫曼算法。而且IOS对skia引擎也做了优化。所有我们看到同样的图片在ios上压缩会好一点。</p>
+<p>函数 encoder-&gt;encodeStream(….) 编码保存本地。该函数是调用 skia 引擎来对图片进行编码压缩，对 skia 的介绍将在后文展开。<br>Android Skia 图像引擎Android 在之前从某种程度来说使用的算是 libjpeg 的功能阉割版，压缩图片默认使用的是 standard huffman，而不是 optimized huffman，也就是说使用的是默认的哈夫曼表，并没有根据实际图片去计算相对应的哈夫曼表，Google 在初期考虑到手机的性能瓶颈，计算图片权重这个阶段非常占用 CPU 资源的同时也非常耗时，因为此时需要计算图片所有像素 argb 的权重，这也是 Android 的图片压缩率对比 iOS 来说差了一些的原因之一。<br>对于图片就是每一个像素中 argb 的权重呢，只能去循环整个图片的像素信息，这无疑是非常消耗性能的，所以早期 android 就使用了默认的哈夫曼表进行图片压缩。因为现在手机性能已经提高了，</p>
+<p>ARGB8888（4字节） RGB565（两个字节） 最常用的这两种，如果不需要透明度参数，指定RGB565像素，格式，也可以减少在内存中的占用。</p>
+<p>尽量把图片放在较高密度的xxhdpi 文件下，设备跟根据自身所属的屏幕密度放大或者缩放，增加/减少内存消耗。</p>
+<p>高清巨图加载，利用BitmapRegionDecoder 局部加载类 写一个自定义view，添加一个上下左右拖动的手势，让用户可以拖动查看，并不断去更新显示 Rect显示区域。</p>
+<h2 id="动画"><a href="#动画" class="headerlink" title="动画"></a>动画</h2><p>###帧动画 （frameAnim）<br>xml animation-list<br>播放动画序列，xml 或者代码方式，利用人的视觉暂留。<br>原理，通过将显示动作 发送到消息队列里，延时执行每一帧drawable.</p>
+<p>###补间动画 (tweenAnim view动画)<br>无需定义每一帧，只需定义开始和结束这两个关键帧。</p>
+<p>插值器 Interpolator<br>透明度 缩放 移动 旋转<br>AnimationSet 实现动画组合<br>自定义View动画 extends Animation<br> 复写 initialize() 方法，<br>applyTransFormation方法 进行矩阵变换</p>
+<p><strong>LayoutAnimation</strong></p>
+<p> 作用于ViewGroup 为ViewGroup 指定一个动画，子元素出场具有这种动画效果，常用于ListView中。</p>
+<p>XML 中通过LayoutAnimationController 来为ViewGroup设置动画。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Animation animation= loadAnimaiton(R.id.anim_item);</span><br><span class="line">LayoutAnimationController controller=new LayoutAnimationController(controller);</span><br><span class="line">listView.setLayoutAnimation(controller);</span><br></pre></td></tr></table></figure>
+<p><strong>Activity的切换效果</strong><br>overiidePendingTransition(int enterAnim,int exitAnim)<br>startActivity finish() 之后调用。</p>
+<p>view动画实现机制</p>
+<p>startAnimation 调用了View的重绘invalidate操作， scheduleTraversals()中，向Choreographer 添加遍历回调， 执行定时16ms刷新，刷新信号来临时，回调得到执行（最终performTraversals）在 draw 方法当中取出了设置的动画属性值，在绘制的过程中，获取动画在当前时刻的变换，然后应用到view的绘制中，并不作用于View本身，而是应用在RenderNode或者Canvas上的，这就是为什么Animation不会改变View的属性的根本所在，不改变原始位置属性，位移，缩放，旋转 不改变view原始属性，只作用于canvas</p>
+<p>###属性动画</p>
+<p>API 11 才加入 低版本用 nineoldandroids 库，本质是使用代理View动画实现的，低版本本质上还是view动画，只不过API相同。</p>
+<p>插值器/估值器</p>
+<p>插值器：根据时间流逝计算属性变化百分比<br>估值器：根据属性变化百分比计算改变后的属性</p>
+<p>ValueAnimator </p>
+<p>对任意属性做动画<br>1.给对象加上get set方法，如果没有权限不行；<br>2.做一个包装类，间接调用<br>3.监听ValueAnimator updateListener 自己实现属性设置。</p>
+<p>属性动画实现原理</p>
+<p>ObjectAnimator#start—&gt;ValueAnimator#start —&gt;AnimationHandler#start–&gt;AnimationHandler#scheduleAnimation 内部向 Choreographer添加了动画回调 回调到期执行 AnimationHandler#doAnimationFrame<br>—&gt; ValueAnimator#start</p>
+<p>根据插值器获得属性变化的百分比，然后去计算当前帧的属性的值，PropertyValuesHolder 中的setAnimatedValue 方法会将新的属性值设置给对象，调用其set方法。本质是通过反射来调用。<br>Choreographer.getInstance().postFrameCallback(new FPSFrameCallback());<br>把你的回调添加到Choreographer之中，那么在下一个frame被渲染的时候就会回调你的callback,执行你定义的doFrame操作，这时候你就可以获取到这一帧的开始渲染时间并做一些自己想做的事情了。</p>
+<p>AnimationHandler.start（）开始第一次动画的执行→UI系统执行AnimationHandler.run()→UI系统执行完后，回调相关函数→再执行AnimationHandler.run().可以理解为AnimationHandler.run()会一直调用自身多次(当然这是由UI系统驱动的),直至动画结束。</p>
+<p>##资源加载机制</p>
+<p>ResourcesManager.java</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// 所有的资源对象都被存储在ArrayMap中，首先根据当前的请求参数去查找资源，如果找到了就返回，否则就创建一个资源对象放到ArrayMap中。</span><br><span class="line">    final ArrayMap&lt;ResourcesKey, WeakReference&lt;Resources&gt; &gt; mActiveResources</span><br><span class="line">            = new ArrayMap&lt;ResourcesKey, WeakReference&lt;Resources&gt; &gt;();</span><br></pre></td></tr></table></figure>
+<p>Resouces.java</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public Resources(AssetManager assets, DisplayMetrics metrics, Configuration config) &#123;  </span><br><span class="line">    this(assets, metrics, config, CompatibilityInfo.DEFAULT_COMPATIBILITY_INFO, null);  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>所以创建Resources的关键就是创建AssetManager<br>系统创建AssetManager的方法；</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">ResourcesManager.getTopLevelResources()</span><br><span class="line"></span><br><span class="line">AssetManager assets = new AssetManager();  </span><br><span class="line">if (assets.addAssetPath(resDir) == 0) &#123;  </span><br><span class="line">    return null;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>AssetManager 可以加载一个zip 格式的压缩包，而 Apk 文件不就是一个 压缩包吗。我们通过反射的方法，拿到 AssetManager，加载 Apk 内部的资源，获取到 Resources 对象，这样再想办法，把 R文件里面保存的ID获取到，这样既可以拿到对应的资源文件了。理论上我们的思路时成立的。<br>我们看下，如何通过代码获取 Resources 对象。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">try &#123;  </span><br><span class="line">//拿到AssetManager 实例</span><br><span class="line">    AssetManager assetManager = AssetManager.class.newInstance();  </span><br><span class="line">    //调用 addAssetPath 方法 传入 路径</span><br><span class="line">    Method addAssetPath = assetManager.getClass().getMethod(&quot;addAssetPath&quot;, String.class);  </span><br><span class="line">    addAssetPath.invoke(assetManager, mDexPath);  </span><br><span class="line">    mAssetManager = assetManager;  </span><br><span class="line">&#125; catch (Exception e) &#123;  </span><br><span class="line">    e.printStackTrace();  </span><br><span class="line">&#125;  </span><br><span class="line">Resources currentRes = this.getResources();  </span><br><span class="line">//构造一个Resources</span><br><span class="line">mResources = new Resources(mAssetManager, currentRes.getDisplayMetrics(),  </span><br><span class="line">        currentRes.getConfiguration());</span><br></pre></td></tr></table></figure>
+<p>拿到Resources 可以通过 Resources.getDrawable(插件中的资源ID（插看插件中的资源）)</p>
+<p>##权限控制机制</p>
+<p>Android 6.0 之前的一次性权限授予<br>Android 6.0 运行时权限<br>Android系统中的权限被划分为两类：普通权限和敏感权限（更多普通权限、敏感权限及权限组信息，如果一组被授予这组其他权限也被授予，</p>
+<p>在 Android 上，一个应用程序只有一个UID，当然多个应用程序也可以共享一个UID。<br>对于普通应用程序来说，gid 等于 uid 。由于每个应用程序的 uid 和 gid 都不相同， 因此不管是 native 层还是 java 层都能够达到保护私有数据的作用。<br>一个GIDS相当于一个权限的集合，一个UID可以关联GIDS，表明该UID拥有多种权限一个进程就是host应用程序的沙箱，里面一般有一个UID和多个GIDS，每个进程只能访问UID的权限范围内的文件和GIDs所允许访问的接口，构成了Android最基本的安全基础。</p>
+<p>##Sqlite操作优化</p>
+<p>###数据库的一些基本知识<br>基本概念<br>索引 视图 触发器  事务（原子性，隔离性，持久性）存储过程<br>设计<br>数据库三范式（原子性，避免非主键列对主键的部分依赖，避免传递依赖 ）<br>避免数据冗余 使得数据变更操作更加合理。</p>
+<p>SQL<br>基本语句结构 SELECT [ALL|DISTINCT] &lt;目标列表达式&gt; [AS 列名]<br>[,&lt;目标列表达式&gt; [AS 列名] …] FROM &lt;表名&gt; [，&lt;表名&gt;…]<br>[WHERE &lt;条件表达式&gt; [AND|OR &lt;条件表达式&gt;…]<br>[GROUP BY 列名 [HAVING &lt;条件表达式&gt;&gt;<br>[ORDER BY 列名 [ASC | DESC&gt; </p>
+<p>###预编译SQL语句<br>Sqlite想要执行操作，需要将程序中的sql语句编译成对应的SQLiteStatement,比如select * from record这一句，被执行100次就需要编译100次。对于批量处理插入或者更新的操作，我们可以使用显示编译来做到重用SQLiteStatement</p>
+<p>###显示使用事务<br>依赖于日志文件的读写，所以 将批量操作放到事务中，然后减少IO操作显著提高性能。</p>
+<p>###为数据量大且查询频繁的表列添加索引</p>
+<p>索引是一种物理结构，索引也会增加数据库的大小。从字面上理解，它们复制了一份所索引的字段。如果 多表中的所有字段都创建索引，表的大小可能翻倍。另一个要考虑的情况是索引的维护。 进行Insert、update和 delete操作时，除了修改表，数据库也必须修改对应的索引。虽然索引可以加速查询，但是它们可能降低insert、update和类似操作的速度。</p>
+<p>###不要返回不需要的列<br>不依赖Java语言层面的同步机制，底层还是交给Sqlite 来处理。</p>
+<p>1.当有写操作时，其他读操作会被驳回<br>2.当有写操作时，其他写操作会被驳回<br>3.当开启事务时，在提交事务之前，其他写操作会被驳回<br>4.当开启事务时，在提交事务之前，其他事务请求会被驳回<br>5.当有读操作时，其他写操作会被驳回<br>6.读操作之间能够并发执行 </p>
+<p>##内存泄露及检测<br>leakCanary 工具使用 原理见下面<br>结合MAT 筛选和排序，MAT使用较为复杂。</p>
+<p>如何避免<br>本质 短生命周期的对象，被长生命周期的对象所引用<br>Activity 内部的非静态Handler<br>Activity 被静态成员所引用，静态成员生命周期和应用生命周期一致，处在方法区当中。<br>Activity 在onDestroy 没有被反注册，例如 EventBus 没有被反注册，导致一直被持有，系统无法回收Activity。从而导致内存泄露。</p>
+<p>##布局优化</p>
+<p>1.减少布局层次<br>LinearLayout Relativelayout 选择<br>如果 能够满足需求且层次相同，优先选择Linearlayout  ，因为在没有weight属性的情况下，只会对子View进行一次测量。有weight时，LinearLayout会对子元素进行2次测量：第一次预测量是为了计算“剩余空间”；第二次测量是根据weight、weightsum计算在“剩余空间”所占的份额，进而创建measurespec进行测量。使用 width/height=0这样可以让系统减少一次长度或宽度的计算，最终值只跟分配的权重有关。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">weight是针对剩余空间的分配，而不是针对LinearLayout总空间的分配；</span><br><span class="line">剩余空间=总宽度-padding-(每个元素的原始宽度+margin+padding)</span><br><span class="line">元素的长度=原始宽度+权重*父视图剩余空间/权重和</span><br></pre></td></tr></table></figure>
+<p>android:layout_weight的真实含义是:一旦View设置了该属性(假设有效的情况下)，那么该 View的宽度等于原有宽度/高度(android:layout_width)加上剩余空间的占比！</p>
+<p>RelativeLayout 由于view的依赖关系，所以会进行纵向横向两次测量。<br>如果不能满足布局层次的需要，那么如果利用RelativeLayout 来相应减少布局层次。</p>
+<p>使用include标签 进行重用<br>配合<merge>减少布局层次<br>viewStub view延迟加载<br>原理 </merge></p>
+<ol>
+<li>ViewStub本身是一个视图，会被添加到界面上，之所以看不到是因为其源码设置为隐藏与不绘制。</li>
+<li>当调用infalte或者ViewStub.setVisibility(View.VISIBLE);时（两个都使用infalte方法逻辑），先从父视图上把当前ViewStub删除，再把加载的android:layotu视图添加上</li>
+<li>把ViewStub layoutParams 添加到加载的android:layout视图上，而其根节点layoutParams 设置无效。</li>
+<li>ViewStub是指用来占位的视图，通过删除自己并添加android:layout视图达到懒加载效果</li>
+</ol>
+<p>##内存优化</p>
+<p>最重要的就是Bitmap大图片加载的问题，避免造成OOM。<br>大内存对象分配要及时回收，例如Bitmap的优化，内存缓存结合硬盘缓存。<br>代码上</p>
+<p>#####数据量较小时选择稀疏数组</p>
+<p><strong>SparseArray</strong></p>
+<p>对应的key只能是int类型，它不会对key进行装箱操作。它使用了两个数组，一个保存key，一个保存value。SparseArray使用二分查找来找到key对应的插入位置。所以要保证mKeys数组有序。remove的时候不会立刻重新清理删除掉的数据，而是将对一个的数据标记为DELETE(一个Object对象)。在必要的环节调用gc清理标记为DELETE的空间。<br>gc函数的原理:遍历一遍数组,将非DELETED资源全部移动到数组前面.</p>
+<p>HashMap遇到冲突时,时间复杂度为O(n).而SparseArray不会有冲突,采用二分搜索算法,时间复杂度为O(lgn).</p>
+<p><strong>ArrayMap</strong></p>
+<p>是以纯数组的形式存储，不过不同的是他的一个数组存储的是Hash值另一个数组存储的是key和value，其中key和value是成对出现的，key存储在数组的偶数位上，value存储在数组的奇数位上，ArrayMap每存储一条信息，需要保存一个hash值，一个key值，一个value值。对比下HashMap 粗略的看，只是减少了一个指向下一个entity的指针。</p>
+<p>mBaseCache，缓存，如果ArrayMap的数据量从4，增加到8，用该数组保存之前使用的mHashes和mArray，这样如果数据量再变回4的时候，可以再次使用之前的数组，不需要再次申请空间，这样节省了一定的时间；<br>mTwiceBaseCache，与mBaseCache对应，不过触发的条件是数据量从8增长到12。</p>
+<p>1.在数据量小的时候一般认为1000以下，当你的key为int的时候，使用SparseArray确实是一个很不错的选择，内存大概能节省30%，相比用HashMap，因为它key值不需要装箱，所以时间性能平均来看也优于HashMap,建议使用！<br>2.ArrayMap相对于SparseArray，特点就是key值类型不受限，任何情况下都可以取代HashMap,但是通过研究和测试发现，ArrayMap的内存节省并不明显，也就在10%左右，但是时间性能确是最差的，当然了，1000以内的数据量也无所谓了，加上它只有在API&gt;=19才可以使用，个人建议没必要使用！还不如用HashMap放心。</p>
+<p>#####常量使用static<br>在类的准备阶段JVM将把类变量所用内存分配到方法区，方法区是线程共享的。</p>
+<p>#####尽量使用static方法<br>但是会执行类的加载过程。因为不需要为对象不在需要在堆区分配内存空间。同时访问过程也会更快一点。</p>
+<p>#####缩小变量的作用域<br>局部变量：在栈内存（虚拟机栈）。<br>局部变量：随着方法的调用而存在，随着方法的调用完毕而消失。</p>
+<p>####使用基础类型而不是包装类<br> 对象在堆中分配内存，增加内存占用,增加方法数</p>
+<p>####少用枚举<br>本质上会被编译成一个类，各个枚举项会成为一个对象实例，增加内存占用和方法数，<br>对于是否替换Android中的枚举，需要分不同的情况，比如上文中提及的场景也是枚举使用的大部分场景：仅仅提供类型安全，那么我们可以考虑通过注解来替换；如果我们需要将数据和枚举常量关联起来，在枚举中声明域，然后编写一个带有数据的构造器，那么还是考虑把枚举留下吧。</p>
+<p>##卡顿优化</p>
+<p>一个是视觉上检测，比较直观，但是不够量化，可能出现在高端机上没有问题，低端机卡顿的问题，因为毕竟性能有差别。<br>工具上检测<br>1.在开发者工具当中，启用GPU呈现模式分析，绿色水平线标示了16毫秒的位置，那么如果在操作时<br>频繁超出这条线，那么认为认为卡顿情况较严重。<br>本质卡顿原理<br>Android系统每隔16ms会发出VSYNC信号重绘我们的界面(Activity).<br>为什么是16ms, 因为Android设定的刷新率是60FPS(Frame Per Second), 也就是每秒60帧的刷新率, 约合16ms刷新一次.如果比较耗时，会发生丢帧。</p>
+<p>造成卡顿的原因</p>
+<p>1、布局复杂，过度绘制。（优化布局）<br>2、内存GC过频。（检查内存消耗，是否溢出，图片压缩等等）<br>3、代码执行效率卡顿。（检查哪部分代码执行时间过长，优化）<br>4、控件原因。（尽量使用新的原生控件）<br>5、受限于需求，硬件造成的卡顿，如webview与其他。（尽量使效果平缓,有必要先展示loading页面，使用NDK）</p>
+<p>『界面切换卡顿』 </p>
+<ol>
+<li>不要在onCreate, onStart, onResume方法中执行耗时的操作；</li>
+<li>布局优化：尽量减少布局文件的层级，使用<include>, <merge>, ViewStub； </merge></include></li>
+<li>绘制优化：不要在View的onDraw方法执行大量的操作，因为onDraw方法可能被频繁调用，另外减少不必要的background。 </li>
+<li>『屏幕滑动卡顿』 </li>
+</ol>
+<p>ListView的滑动优化：</p>
+<ol>
+<li>复用ConvertView，使用ViewHolder并避免在getView中执行耗时操作；</li>
+<li>如果列表中需要加载图片，把图片压缩到ImageView所需大小再加载；</li>
+<li>根据列表的滑动状态来控制任务的执行，比如列表快速滑动时不适合开启大量的异步任务，如果执行大量的UI 更新操作会导致主线程绘制任务过重，导致卡顿；</li>
+<li>开启硬件加速。</li>
+</ol>
+<p>主线程不要做耗时操作，将耗时开启新线程，网络读取，I/O 等，</p>
+<p>还有不要在类似 onDraw 方法中执行频繁的对象操作，例如 Paint 的new</p>
+<p>卡顿检测的方式 BlockCannary  卡顿检测的原理</p>
+<p>##安装包体积优化</p>
+<p>1.由于项目支持版本在Android 4.0 所以直接使用webp格式图片，比普通的PNG 体积节省30%，</p>
+<p>2.利用lint来检查图片的无效引用，检查Res 目录下文件无效使用，人工删除无效资源。</p>
+<p>3.minifyEnable选项 启动Proguard 开启混淆，他会遍历所有代码并去掉无效代码，同时会加用一些短的字母组合来替换类名，属性名等。</p>
+<p>4.启用shrinkResouces 选项，此属性配合minifyEnabled混淆使用 如果项目里有用到这个方法 <code>getResources().getIdentifier(key, “drawable”,getPackageName()));</code><br>就会get不到，本质利用了反射，工具无法检测到资源是否被引用到。</p>
+<p>5.现在drawable-xxhdpi  够了，设计师只做了一套图来符合IOS 和Android ，尽量匹配主流尺寸的，减少过多的尺寸。</p>
+<p>6.去掉 x86架构的so库，一般Android手机上都是 arm架构的，开发阶段模拟器上需要x86架构的。</p>
+<p>7.资源混淆 采用微信的方案，对生成的apk进行资源的路径名还有文件名称进行替换。</p>
+<p>基本原理，根据原有的asrc 资源文件列表，对每一项资源进行重新路径生成，然后又重新生成了新的asrc文件，asrc 维护这 R文件到真实资源文件的索引，并启用7zip压缩包，提高了压缩比，达到了资源混淆并减少压缩包体积的目的。</p>
+<p>#项目回答</p>
+<p>###基本信息</p>
+<p>Hybrid APP</p>
+<p>主进程 （两个服务） CoreService核心服务（上传统计数据,TalkingData配置在主进程,后期逐步替换成自己的服务）</p>
+<p>推送进程（一个服务用于推送）:push HcePushService 小米推送服务</p>
+<p>安全进程（一个服务） :Sercurity  CmbSecurity</p>
+<p>###APP启动页面功能改进和App启动优化</p>
+<p>功能改进:</p>
+<p>测试启动时间：感官上估算，本地调试利用adb命令，统计TotalTime 打印出来启动时间，线上，需要log断点，在attachBaseContext方法和应MainActivity onWindowFocusChanged方法打断点。<br>启动黑屏优化： windowBackground 显示logo属性解决黑屏问题。原因是主题背景默认为黑色，采用 night主题。</p>
+<p>SDK初始化方法注册方法均在异步线程启动， 不在onCreate 中注册，<br>因为onCreate运行在主线程可能会耗时，代码逻辑比较多，较为耗时，<br>拿出来 在IntentService 中。方法是重写 onHandleIntent,自动开始线程，并在结束后自动关闭Service ，这个地方会问到原理。定位SDK 推送SDK等放在异步线程中初始化。 </p>
+<p>IntentService 继承了Service 并且内部有一个Handler, onCreate 初始化方法中有创建了HandlerThread,并启动了他，HandlerThread本身继承自 Thread类，在run方法中启动了消息循环，在onCreate方法中拿到了HandlerThread关联的Looper，并且用这个Looper初始化了一个Handler，在start方法当中，通过这个Hanlder发送了一个Message，<br>最后执行到 Handler的handleMessage ,执行了onHandleIntent。</p>
+<p>###体验优化App 异常重启方案设计</p>
+<p>注册全局异常处理器</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CauchExceptionHandler.getInstance().setDefaultUnCachExceptionHandler();</span><br></pre></td></tr></table></figure>
+<p>复写 uncaughtException方法，重录日志并重启应用。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">AlarmManager mgr = (AlarmManager) mAppContext.getSystemService(Context.ALARM_SERVICE);</span><br><span class="line"></span><br><span class="line">Intent intent = new Intent(mAppContext, WelcomeActivity.class);</span><br><span class="line">intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);</span><br><span class="line">intent.putExtra(&quot;crash&quot;, true);</span><br><span class="line">PendingIntent restartIntent = PendingIntent.getActivity(mAppContext, 0, intent, PendingIntent.FLAG_ONE_SHOT);</span><br><span class="line">mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, restartIntent); // 1秒钟后重启应用</span><br><span class="line"></span><br><span class="line">android.os.Process.killProcess(android.os.Process.myPid());</span><br><span class="line">System.exit(0);</span><br><span class="line">System.gc();</span><br></pre></td></tr></table></figure>
+<p>###webView功能优化和改进</p>
+<p>####缓存优化</p>
+<ol>
+<li>使用LOAD_DEFAULT这种缓存方式，数据从缓存中获取还是从网络中获取根据H5页面的参数判断，这样做的好处是可以动态的处理更新内容；</li>
+<li>提前把css、js、图片等一些公用的资源，资源放在assets下面，打包到apk包中，程序运行可以直接调用assets目录下面的文件。复写WebViewClient  shouldInterceptRequest，解析URL ，然后去拿到输入流包装成新的webResouces对象，最后返回。</li>
+<li>采用CDN网络，避免网络上可能影响数据传输速度的稳定性的环节，从而实现更快，更稳定的加载。 </li>
+<li>提高渲染的优先级，把图片加载放在最后来加载渲染</li>
+</ol>
+<p>webSettings.setBlockNetworkImage(true);<br>onPageFinished webSettings.setBlockNetworkImage(false).</p>
+<p>####内存泄露避免</p>
+<p>项目中会有一个公用的webActivity,用于展示H5界面，在实际业务场景中这个场景中这个页面会被反复打开和关闭。刚开始开发的时候，在某些中低端手机上测试时，偶尔发现会造成OOM异常，最终造成应用崩溃。线上统计时也会崩溃日志。</p>
+<p>本地开发，随着打开业务界面，发现内存显著升高，如果发现退出界面,程序内存迟迟不降低的话,可能就发生了严重的内存泄露。</p>
+<p>webView 泄露的原因，写在了布局当中，持有了Activity 引用，只有在需要的时候才会new一个，但是布局里的webview即使你在这个界面里的某段操作没有用到它但也会一直会持有activity的引用；</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">public void destroy() &#123;</span><br><span class="line">    if (mWebView != null) &#123;</span><br><span class="line">        // 如果先调用destroy()方法，则会命中if (isDestroyed()) return;这一行代码，需要先onDetachedFromWindow()，再</span><br><span class="line">        // destory()</span><br><span class="line">        ViewParent parent = mWebView.getParent();</span><br><span class="line">        if (parent != null) &#123;</span><br><span class="line">            ((ViewGroup) parent).removeView(mWebView);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        mWebView.stopLoading();</span><br><span class="line">        // 退出时调用此方法，移除绑定的服务，否则某些特定系统会报错</span><br><span class="line">        mWebView.getSettings().setJavaScriptEnabled(false);</span><br><span class="line">        mWebView.clearHistory();</span><br><span class="line">        mWebView.clearView();</span><br><span class="line">        mWebView.removeAllViews();</span><br><span class="line"></span><br><span class="line">        try &#123;</span><br><span class="line">            mWebView.destroy();</span><br><span class="line">        &#125; catch (Throwable ex) &#123;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其实还可以将webActivity 单独设置在一个单独的进程当中，但是会有一些问题，导致<br>application 初始化两次，这里可以通过获取当前进程名称，判断是否等于当前进程名动态判断进行初始化，</p>
+<p>重新创建进程，Application 创建两次，全部变量共享问题，变量初始化为两次，导致获取不到。<br>通过Content Provider来访问SharedPreferences，sp多线程安全，多进程需要用到Content Provider。</p>
+<p>使用了leakCanary来检测潜在的内存泄露问题，这里讲下它的工作原理。</p>
+<p>###方法数越界问题<br>原因：方法数太多超过了单个dex文件所需的64K限制，frameWork+jar+应用本身，在低版本或者某些未超过64K的安装出现问题，dexopt 程序优化，采用一个固定大小的缓冲区来存储应用的方法信息，低版本只有5M,高版本可能有8M或者16M，方法数较多的话，会安装失败。<br>项目中因为方法数还有引入的库较多，并且不能去除，所以通过 谷歌提出的multiDex方案，具体做法是低版本中引入attachBaseContext(）当中 <code>multiDex.install(this)</code></p>
+<p>解释 Dalvik ART对dex文件的不同处理，Dalvik 应用启动后逐个加载 dex文件，ART 在安装时 扫描所有的 dex文件，然后生成一个 oat文件，本地执行码，运行时实际上加载的是oat。</p>
+<p><strong>开发阶段的优化方法</strong></p>
+<p>采用productFlavors来创建两个flavor,在设置最小的SDK 一个开发14，一个生产21，在开发阶段，低于5.0以上版本，构建过程需要复杂的计算决定哪些类要在主dex当中，如果是5.0以上版本，则不需要这个计算过程，加速构建过程。</p>
+<p>###改进和优化Volley</p>
+<p>####1.支持访问自签名HTTPS域名，<br>实现方式，新增一个VolleyHttps类，然后在构造HttpStack 过程中，传入自定义的SSLSocketFactory的,本地raw文件夹下放置cer证书，<br>相关知识，HTTP 和HTTPS 区别，HTTPS SSL 建立握手的细节。</p>
+<p>####</p>
+<p>####</p>
+<p>####3.优化了Volley ImageLoader 的图片加载模块<br>默认条件下Cache是空的，加入默认的内存缓存，大小为可用内存MaxMemory的1/8.<br>为ListView和GridView 加载做了优化，为ImageView 设置 Tag,然后判断 URL 是否发生变化。</p>
+<p>####4.改进默认超时设置</p>
+<p>超时时间设置5s，默认最大请求次数为1，累计因子是1，默认超时时间为2.5s，稍短，可能造成在短时间内多次请求数据。</p>
+<p>超时机制实现的原理，抛出一个异常， socket(响应异常)/connect（连接异常），</p>
+<p>BasicNetWork performRequest 方法中是一个While true循环， 当发生异常时，执行请求方法，在请求方法当中 累加请求次数，并且累加超时时间，2.5s  2.5+2.5<em>1=5s  5+5 </em> 2=15s</p>
+<p>如果超出了最大请求次数，那么就抛出一个 VolleyError 终止了while 循环，然后在外层循环当中捕获了这个异常，最后分发异常执行回调。</p>
+<p>####Volley原理</p>
+<p>HTTP 缓存原理</p>
+<p>####存在的问题<br><strong>1.HTTP 语义的实现没有完全按照标准存在风险</strong></p>
+<p>Last-Modified代表了资源文件的最后修改时间。通常使用这个首部构建If-Modified-Since的时间。Date代表了响应产生的时间，正常情况下Date时间在Last-Modified时间之后。也就是Date&gt;=Last-Modified。<br>通过以上原理，既然Date&gt;=Last-Modified。那么我利用Date构建，也是完全正确的。<br>可能的问题出在服务端的 Http 实现上，如果服务端完全遵守 Http 语义，采用时间比较的方式来验证If-Modified-Since，判断服务器资源文件修改时间是不是在If-Modified-Since之后。那么使用Date完全正确。<br>可是有的服务端实现不是比较时间，而是直接的判断服务器资源文件修改时间，是否和If-Modified-Since所传时间相等。这样使用Date就不能实现正确的再验证，因为Date的时间总不会和服务器资源文件修改时间相等。<br>尽管使用Date可能出现的不正确情况，归结于服务端没有正确的实现 Http 语义。<br>但我还是希望 Volley 也能完全正确的实现 Http 语义，至少同时处理Last-Modified和Date,并且优先使用Last-Modified。<br><strong>2.Volley磁盘缓存，命中率缓存有待提高</strong></p>
+<p>磁盘缓存存在的问题，当所需大小超过容量时，会遍历到LRU 缓存，循环删除key对应的缓存文件，这个地方可以优化<br><strong>3.对于稍大数据量支持欠佳</strong></p>
+<p>返回的原始数据全部一次性存入response data[] 中。<br>注意点：<br>回调执行在主线程，不要做耗时操作，不需要执行网络请求时，取消调网络请求，在onStop方法对请求设置一个Tag，然后取消这个tag标识的所有的请求。</p>
+<p>##安全性能提升</p>
+<p>###1.禁止截屏的实现，</p>
+<p>设置Activity的属性：可防止系统截屏，可以放在BaseActivity里面，这样几乎整个APP都能防止截屏了</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);</span><br><span class="line">this.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SECURE);</span><br></pre></td></tr></table></figure>
+<p>###2.引导用户下载安全软件。</p>
+<p>走系统的downLoadManager服务。</p>
+<p>###3.用户切换后台超时后设置重新登录。<br>多种方法，注册ActivityLifecycleCallbacks回调/BaseActivity当中记录一个静态变量count，<br>在 onStart() ++，count==1,时，进入前台，取当前时间与sp时间做差，超时则注销登录。<br>，在onStop()当中–，当count==0时说明被切入后台，记录一个时间，sp持久化，</p>
+<p>####4.app被杀死后重新启动</p>
+<p>锁屏 切换到后台 onSaveInstanceState都会被调用，当配置变化或者因为资源不足onSaveInstanceState&amp;onRestoreInstance 方法会成对调用。</p>
+<p>如何被第三方应用或者工具强杀，则不会走生命周期方法。</p>
+<p>如何判断app被强杀，在application 当中建立一个静态变量，静态变量的值是否被修改<br>MainActivity 设置成 singleTask ,正常流程，在欢迎界面设置成正常启动状态，在BaseActivity onCreate()当中判断这个状态，如果正常的话就正常初始化，否则启动MainActivity 在 onNewIntent方法中，取得传递过来的值，重启欢迎界面，位于其上的Activity 全部出栈，那么App 正常启动。</p>
+<p>####5.全部请求采用Https<br>这里主要讲下HTTP 和HTTPS的区别，HTTPS握手的过程。</p>
+<p>####6.所有敏感信息全部采用native方法<br>加密秘钥等，采用native方法</p>
+<p>####7. 发送的广播全部改为本地广播<br>LocalBroadCastReceiver 的原理<br>动态注册，Handler，不足时 无法跨进程，只能在当前进程当中。</p>
+<p>####8.token信息不缓存本地<br>请求带token时，直接从内存当中拿，退出后重新登录</p>
+<p>####9.定义混淆规则设置去掉Log日志<br>打开优化开关，使用优化混淆配置文件，</p>
+<p>####10.防止so被调试<br>IDA 动态调试工具，native 轮训 检测 proc/pid/status tracerPid 是否==0,如果不等于说明程序被调试，终止进程。</p>
+<p>####11.检测是否在模拟器上运行<br>deviceId,IDS 是否全0,特定文件，默认电话号码，imsi号码，硬件信息，运营商家（是Android等）</p>
+<p>####12. 对抗二次打包<br>判断签名是否被修改等，PMS 拿到signature信息，取得一个hash码，判断是否和预定义值相等。</p>
+<p>####13.输入法攻击<br>提供安全键盘方案 自定义view 继承自KeyboardView，根据xml定义规则书写键盘布局。</p>
+<p>####引入AndFix热修复方案解决线上Bug</p>
+<p>####使用方法<br>首先用apkpatch工具生成两个个apk做一次对比，然后找出不同的部分。可以看到生成的apatch了文件，后缀改成zip再解压开，里面有一个dex文件。通过jadx查看一下源码，里面就是被修复的代码所在的类文件,这些更改过的类都加上了一个_CF的后缀，并且变动的方法都被加上了一个叫@MethodReplace的annotation，通过clazz和method指定了需要替换的方法。然后客户端sdk得到补丁文件后就会根据annotation来寻找需要替换的方法。最后由JNI层完成方法的替换。</p>
+<p>####遇到的问题<br>Andfix写死了ArtMethod结构体，会带来很大的兼容性问题，有些厂商会更改ArtMethod代码，因此就会出现一些和原来的开源代码不一样的地方，如果这样，那替换机制就挂了。<br>2.不支持新增或修改成员变量（生成.patch会报异常）<br>3.不支持新增类 （生成.patch时正常，运行时报错——崩溃掉了）<br>4.源生工具不支持 multidex （可以通过JavaAssist工具修改apkpath这个包，来达到支持mutidex的目的）<br>小米5 vivo上面不支持等，有点坑。</p>
+<p>###城市列表实现及流量优化</p>
+<p>主要实现方式：实现排序，读取字符串列表，转化为拼音，工具类大致方法是 预先植入所有的拼音，及其对应的ASCII码，先将汉字转为ASCII吗，然后取得对应的字母。取字母。排序方法就是自定义排序接口，重写排序的方法。</p>
+<p>item布局包含了两个地方，首字母是以及下面的城市。Adapter当中实现SectionIndexer接口，包含了一个根据位置找值（取得对应位置的ASCII），根据值找位置（遍历找到第一次出现的位置），在getView方法当中，根据当前postion是否是第一次出现字母的位置，改变字母View的可见性，从而达到想要的效果。</p>
+<p>sideBar 是一个自定义的View，onDraw方法绘制字母，在DispatchTouchEvent方法当中，在Move_UP 回调接口，然后将此时的触摸字符传递过去，Activity 中 回调拿到触摸字符，然后<br>有根据字符的ACSII获取它第一次出现的位置，然后设置listView selection 选中。即可。</p>
+<p>####流量的优化<br>引入了一个支持的城市列表配置，配置加一个版本号。请求时带上版本号，然后从服务端加载时，只返回变更的数据，差量更新。放在定时任务里面。</p>
+<p>###设计多系统接入工作平台</p>
+<p>webview 加载的各个系统将当前登录用户信息通过私钥加密后传送给接入系统，由接入系统负责对签名数据进行验证，签名数据包括data和token两部分，其中data为json格式的用户信息的Base64字符串，token为对data的数字签名字符串，各个系统各自持有包含公钥证书。<br>支持两种方法的取得用户信息，get方式和cookie方式。</p>
+<p>调用本地功能：接入系统引入MobileJs 然后按照给定的协议格式调用指定函数获取应用信息，在shouldOverrideUrlLoading方法当中拦截url解析参数，然后调用本地功能，通过view.loadUrl(js) 回调js当中的callback,<br>前端，js调用时根据当前调用时间戳生成临时的函数名callback_xxxxxx 保存在全局变量中callbacks中，<code>mobileJs.callbacks[&quot;bridge_0_1513881464615&quot;(param)</code>.保证了回调函数的唯一性。</p>
+<p>###网络框架封装</p>
+<p>利用Retrofit 网络请求</p>
+<p>Retrofit 原理+ OKHTTP 原理<br>为什么用，因为服务端支持的是Restful API ，而且结合了OKHTTP 和 GSON，使用简单而且有优雅。这里涉及到Restful API 概念。<br>Retrofit 原理   Java 动态代理实现机制，简单叙述。<br>为什么只支持接口，生成的类，已经继承自Proxy,又由于Java 单继承原因，只能使用接口来获取代理类的方法，解决方法采用javassist 字节码生成技术。</p>
+<p>###MVP架构设计实现业务逻辑解耦</p>
+<p>MVC 优缺点 </p>
+<p>MVVM模式 </p>
+<p>没有presenter ，view model 通过viewModel 实现双向绑定，<br>官方的databinding 暂时只支持 model改变view，单向绑定。</p>
+<p>Presenter 主要作为沟通View和Model的桥梁，从Model层检索数据后，返回给View层，<br>使得View和Model之间没有耦合，也将业务逻辑从View角色上抽离出来。<br>解决Activity过于臃肿，代码耦合度过高的问题。<br>一个进程 com.cmbchina.amoffice<br>核心服务 CoreService 获取配置，存本地数据库，上传运营数据</p>
+<p>###UI卡顿检测方案设计</p>
+<p>简单叙述下这个方案的基本原理。</p>
+<p>###Activity 后台被回收Fragment重叠</p>
+<p>原因：回收默认保存了视图层次，同时清除了显示标记，</p>
+<p>再次初始化以后，所有的Fragment全部显示了出来。</p>
+<ol>
+<li>要么重新启动</li>
+<li>复写 onSaveInstance，保存显示状态，但是某些意外情况也导致onSave方法不被回调。</li>
+<li>onAttachFragment</li>
+<li>onSaveInstance 全部移除实例</li>
+</ol>
+<p>###如何优化流量</p>
+<p>###语音功能开发和性能优化</p>
+<p>语音录制，采样压缩，播放等，</p>
+<p>###二维码扫描登录实现 </p>
+<p>ZXing 主要做了扫描速度的优化以及扫描页面的样式优化。<br>ViewfinderView 绘制刷新线，postDelay 以及四角。<br>在扫码的时候发现非要把码对准到框中才能扫出结果，原因在于官方为了减少解码的数据，提高解码效率和速度，采用了裁剪无用区域的方式。这样会带来一定的问题，整个二维码数据需要完全放到聚焦框里才有可能被识别，并且在buildLuminanceSource(byte[],int,int)这个方法签名中，传入的byte数组便是图像的数据，并没有因为裁剪而使数据量减小，而是采用了取这个数组中的部分数据来达到裁剪的目的。对于目前CPU性能过剩的大多数智能手机来说，这种裁剪显得没有必要。如果把解码数据换成采用全幅图像数据，这样在识别的过程中便不再拘束于聚焦框，也使得二维码数据可以铺满整个屏幕。这样用户在使用程序来扫描二维码时，尽管不完全对准聚焦框，也可以识别出来。这属于一种策略上的让步，给用户造成了错觉，但提高了识别的精度。解决办法很简单，就是不仅仅使用聚焦框里的图像数据，而是采用全幅图像的数据。</p>
+<p>网页版扫一扫登录，浏览器获得一个唯一的、临时的uid，通过webSocket长连接等待客户端扫描带有此uid的二维码后，从长连接中获得客户端上报给服务器的帐号信息进行展示。并在客户端点击确认后，获得服务器授信的令牌，进行随后的信息交互过程。 在超时、网如果接到状态码201（服务器创建新资源成功），表示客户端扫描了该二维码。络断开、其他设备上登录后，此前获得的令牌或丢失、或失效，对授权过程形成有效的安全防护。</p>
+<p>###进程保活的实现</p>
+<p>####1像素法<br> 在系统进入后台后，启动一个一像素的Activity，通过设置LayoutParam 将其尺寸设置成1*1像素，设置主题透明+ 不出现在最近任务列表中。提升oom_adj为0，原来后台进程oom_adj为6，容易被杀死,适用于处于后台锁屏情况， 本方案主要解决第三方应用及系统管理工具在检测到锁屏事件后一段时间（一般为5分钟以内）内会杀死后台进程，已达到省电的目的问题。</p>
+<p>  适用于所有的 Android 版本。</p>
+<p>####前台service</p>
+<p>思路一：API &lt; 18，启动前台Service时直接传入new Notification()，api<br>思路二：API &gt;= 18，同时启动两个id相同的前台Service，一个创建了具体通知fakeService，另一个为空通知，然后再将启动的fakeService做stop处理；<br>Android 7.0也失效了。</p>
+<p>####系统拉活<br>onStartCommand 返回START_STICKY，被杀死后重新启动 执行 生命周期方法。<br>Service 第一次被异常杀死后会在5秒内重启，第二次被杀死会在10秒内重启，第三次会在20秒内重启，一旦在短时间内 Service 被杀死达到5次，则系统不再拉起。<br>进程被取得 Root 权限的管理工具或系统工具通过 forestop 停止掉，无法重启。</p>
+<p>####jobscheduler机制<br>只适用于Android 5.0以上版本，设置wifi或者充电某些空闲时条件，启动ImService，仅在小米手机可能会出现有时无法拉活的问题。<br>native 层 fork子进程，主进程持有文件锁（由底层提供提供文件锁的方法供上层调用），应用进程持有文件锁，native进程申请文件锁会被阻塞，一旦申请成功说明应用被杀死，调用 am（adb命令）然后启动主进程。<br>系统白名单机制，账号同步服务，设置一个账号，设置同步周期，启动服务，5.0以上有效。</p>
+<p>###整个架构</p>
+<p>通讯协议的选型，XMPP(主要缺点XML耗流量，不完善，不灵活） ,MQTT（也可以但是不灵活）IBM 实现的，等协议整体通信方案采用自定义协议的方式，可以比较下当前IM协议的优劣。</p>
+<p>后台大致采用的是多路复用采用异步IO epoll C++ .自己实现TCP传输层的自定义二进制协议， 二进制方式，支持多端使用，网页端（WebSocket），IOS，Android （Netty3+ProtoBuf）。</p>
+<p>采用protobuf的数据协议，二进制协议 优化数据的传输。定义Message 代表一个类，<br>Enum 生成了枚举。xml json 数据量更小，多个平台都支持。<br>最后的1，2，3则是代表每个字段的一个唯一的编号标签，在同一个消息里不可以重复。<br>这些编号标签用与在消息二进制格式中标识你的字段，并且消息一旦定义就不能更改。需要说明的是标签在1到15范围的采用一个字节进行编码。所以通常将标签1到15用于频繁发生的消息字段。编号标签大小的范围是1到2的29次方 – 1。此外不能使用protobuf系统预留的编号标签（19000 －19999）。</p>
+<p>###设计心跳机制和断线重连机制</p>
+<p>####心跳机制<br>为什么要心跳，我们可以通过两种方式实现心跳机制:<br>使用 TCP 协议层面的 keepalive 机制.在应用层上实现自定义的心跳机制.<br>虽然在 TCP 协议层面上, 提供了 keepalive 保活机制, 但是使用它有几个缺点:</p>
+<p>它不是 TCP 的标准协议, 并且是默认关闭的.<br>TCP keepalive 机制依赖于操作系统的实现, 默认的 keepalive 心跳时间是 两个小时, 并且对 keepalive 的修改需要系统调用(或者修改系统配置), 灵活性不够.<br>TCP keepalive 与 TCP 协议绑定, 因此如果需要更换为 UDP 协议时, keepalive 机制就失效了.心跳机制，检测通讯双方的存活状态，连接存活，但是服务端无法接受负载满，无法接受响应的情况下，连接仍然是可用的。<br>客户端应该和服务端应该实现，<br>固定心跳方案，4min心跳周期是稳定可靠的，但无法确定是最大值。通过终端的尝试，可以获取到特定用户网络下，心跳的最大值。微信的智能心跳方案，初始值，然后在不同网络环境下增加步长来探测，不断获得一个较合理的值。算法比较复杂，没有开源，所以没有效仿。</p>
+<p>检测连接，NAT超时时间，中国移动3G和2G 5分钟  中国联通2G 5分钟 中国电信3G 大于28分钟。<br>手机休眠之后IdleStateHandler 定时器HashedWheelTimer可能存在被系统停止关闭的现象，所以采用AlarmManager 进行心跳的检测。<br>HashedWheelTimer 时间轮调度算法，默认大小512，tick 事件为100ms,每个槽位，保存一个链表，计算所放位置。缺点是，内存占用稍高，但是效率不错，主要用来高效处理大量定时任务，不需要遍历所有链表。</p>
+<p>###断线重连机制</p>
+<p>###重连的机会<br>1.网络链接的异常 2.请求消息服务器 3链接消息服务器</p>
+<p>###APP设计了整体的消息通知架构</p>
+<p>采用 EventBus 来进行解耦，为什么这么做？怎么用。EventBus 的实现机制,EventBus 与其他解决方案的对比。</p>
+<p>RetentionPolicy.RUNTIME表示在运行时可见，它将被写入class文件的VisibleAnnotation属性中。<br>RetentionPolicy.CLASS表示写入class文件但不会在运行时获取，它们被写入字节码的InvisibleAnnotation属性中。<br>通过域名得到 消息服务器地址，然后连接 消息服务器，连接成功执行了登录操作。<br>改进了 消息序列号发生器的机制。利用原子变量。CAS ，<br>底层基于NIO实现的Netty 来显示 socket读写， 传统IO 同步阻塞，当接受<br>这里讲下 BIO（传统IO）伪异步IO NIO（select/poll） NIO 2.0 AIO(epoll)<br>NIO 底层根据平台不同有具体不同实现，linux通过select/poll/epoll实现<br>select/epoll 区别<br>都是多路复用IO，select/poll 同步IO，从用户空间拷贝fd_set到内核空间,需要遍历fd,遍历所有fd，对全部指定设备做一次poll</p>
+<ol>
+<li><p>select/poll把fd的监听列表放在用户空间，由用户空间管理，导致在用户空间和内核空间之间频繁重复拷贝大量fd；epoll在内核建立fd监听列表（实际是红黑树），每次通过epoll_ctl增删改即可。</p>
+</li>
+<li><p>select/poll每当有fd内核事件时，都唤醒当前进程，然后遍历监听列表全部fd，检查所有就绪fd并返回；epoll在有fd内核事件时，通过回调把该fd放到就绪队列中，只需返回该就绪队列即可，不需要每次遍历全部监听fd。<br>NIO 使用基本描述<br>一个线程处理<br>windows通过winsocket实现<br>Netty牛的地方就是屏蔽NIO编程的复杂性，简化编程模型，让开发者聚焦业务逻辑，而且针对NIO中的一些可靠性问题就行了处理。下面对Netty对几个可靠性问题处理进行学习。</p>
+</li>
+</ol>
+<p>不用 传统IO，不用jdk里面的NIO 原因。<br>Netty作为客户端的优势<br>API简单，规避了epoll 空轮训bug,这个bug导致CPU 可能超载,性能更好，更加可靠。<br>Reactor 模型，Netty通过Reactor模型基于多路复用器接收并处理用户请求，内部实现了两个线程池，boss线程池和work线程池，其中boss线程池的线程负责处理请求的accept事件，当接收到accept事件的请求时，把对应的socket封装到一个NioSocketChannel中，并交给work线程池，其中work线程池负责请求的read和write事件，由对应的Handler处理。<br>一个通道channel可读可写，一个线程完全可以处理，启动一个SocketThread 来处理系统中所有的发送请求。<br>ChanelPipe 通道数据流的抽象，采用拦截链模式，经过注册对应的Handler 来进行事件处理。</p>
+<p>###解决TCP通讯时的粘包/拆包问题</p>
+<p>现象描述，发送端发送的数据，没有立即发送出去，</p>
+<p>###发送方造成的粘包现象解决<br>Nagle算法<br>而Nagle算法主要做两件事：1）只有上一个分组得到确认，才会发送下一个分组；2）收集多个小分组，在一个确认到来时一起发送。</p>
+<p>场景描述，1.消息发送延时，无法及时获取服务端回复，服务端一次性可能会收到多个消息造成排队。<br>我们可以通过关闭Nagle算法来解决，使用TCP_NODELAY选项来关闭Nagle算法。</p>
+<p>###接收方粘包现象解决</p>
+<p>会造成解码数据失败，无法从传回的byte数据当中反序列化为protobuf .</p>
+<p>采用内置的解码器，自定义解码规则，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">new LengthFieldBasedFrameDecoder(400 * 1024, 0, 4, -4, 0));</span><br></pre></td></tr></table></figure>
+<p>1.最大长度2.长度字段偏差 3.长度字段占的字节数 4.添加到长度字段的补偿值（如果长度字段，标识了整个消息体的长度，包含长度字段本身）<br>5.从解码帧中第一次去除的字节数。<br>本质就是本质上控制结束字符的位置,根据传入参数进行字节截取操作，更新读写索引，并返回新的ByteBuf</p>
+<p>###MTU和MSS </p>
+<p>MTU：maximum transmission unit，最大传输单元，由硬件规定，如以太网的MTU为1500字节。<br>MSS：maximum segment size，最大分节大小，为TCP数据包每次传输的最大数据分段大小，一般由发送端向对端TCP通知对端在每个分节中能发送的最大TCP数据。MSS值为MTU值减去IPv4 Header（20 Byte）和TCP header（20 Byte）得到。<br>分片：若一IP数据报大小超过相应链路的MTU的时候，IPV4和IPV6都执行分片(fragmentation)，各片段到达目的地前通常不会被重组(re-assembling)。IPV4主机对其产生的数据报执行分片，IPV4路由器对其转发的数据也执行分片。然而IPV6只在数据产生的主机执行分片；IPV6路由器对其转发的数据不执行分片。</p>
+<p>###聊天列表实现和优化</p>
+<p>####发送文字和表情</p>
+<p>局部更新ListView,加速查找优化。</p>
+<p>SessionList 采用</p>
+<h3 id="发送文件的优化"><a href="#发送文件的优化" class="headerlink" title="发送文件的优化"></a>发送文件的优化</h3><p>做了文件秒传的优化，文件上传之前先计算文件md5,调用查询接口，<br>如果有，直接提示已经上传成功，只发送消息体，不发送附件。<br>将文件发送请求 放到IntentService中，然后通过总线通知到发送文件成功。</p>
+<p>###发送语音的优化<br>由文件形式改为直接通过流的形式发送，并经过压缩。300K 经过压缩 变成 30K ，压缩效果为十分之一。<br>发送文字 和发送语音，直接通过想socket当中写入数据。<br>MediaRecorder 封装程度较高，录制音频的话，无法拿到原始数据；<br>语音通过 AudioRecord 录制，拿到原始数据pcm格式，通过speeX 开源音频库进行压缩处理，并最终放入将原始字节数据放入 socket发送，压缩率较高，录制压缩过程需要开启异步线程处理。<br>最长60s语音不过 几十KB.这个过程采用的是双线程，边录制，边压缩(共享文件路径)。<br>播放过程，从socket 拿到数据流，保存的文件路径，然后采用speeX进行解码，将解码之后的数据交给 AudioTracker 进行播放， 此过程需要开启异步线程。<br>这种方法是基于帧的，并不是一个文件一个文件处理，而是定一个帧的长度基于帧的编码为你想要的一个Speex格式，最后Speex添加Speex文件的头信息（此处的头是OGG格式编码的头），然后通过Socket发送Speex文件数据到服务器，服务器传到另外一台设备，设备接受为Speex文件并解码为PCM音频数据。这个Speex还有很多很多的功能，包括录制之前的设置和降噪都可以设置。</p>
+<p>###消息重发的逻辑</p>
+<p>消息重发的逻辑<br>消息发送失败都会在本地存一份数据，由用于决定是否上传。</p>
+<p>##图片加载框架BridgeImageLoader</p>
+<ol>
+<li>LruCache 内存缓存 原理分析 自己的博客</li>
+<li>DiskLruCache 硬盘缓存 原理分析 郭霖的博客，鸿阳的博客</li>
+<li>线程池设计 分类 线程池基本原理</li>
+<li>解决乱序问题 复用产生的原因及处理办法 检查URL是否发生变化 Glide的解决方案</li>
+</ol>
+<p>##框架源码分析简介</p>
+<p>###框架使用过程演进</p>
+<p>#####网络框架使用演进<br>早期使用普通的HttpUrlConnection+AsyncTask  自己封装上传下载 而且没有缓存实现，效率低下，对于通信频繁的需要，–&gt; Volley–&gt;OkHttp  </p>
+<p>####图片框架使用演进<br>自写ImageLoader 不足之处 api不够简洁，不够完善，使用时需要开发者需要指定尺寸，底层使用HttpUrlConnection，走一次建立断开连接过程。</p>
+<p>###1.Volley<br>构建队列  根据API版本不同初始化不同的 网络请求类，HttpStack，9 以下采用httpClient,以上采用 httpUrlConnection,创建默认的请求队列,开启start方法，开启线程，1个磁盘缓存线程，4个网络线程，并发执行。 采用生产者消费者模式，优先级阻塞队列的方法。加入相同的request,同一时刻只有一个请求执行，其他请求排队，执行完成后，当一个请求被加入请求队列后，首先判断它是否可以被缓存，默认可以的，首先加入的缓存队列，然后 在缓存线程当中取结果，取不到结果就加入到网络线程当中。<br>多个同一请求要排队，只有同一时刻只有一个请求可以执行，完成后，会将其他等待的请求取出，重新加入缓存对列当中，那么就可以直接从缓存当中命中。</p>
+<p>###2.Retrofit<br>代理模式 分类及其各自实现原理，动态代理的简要描述</p>
+<p>###3.OKhttp<br>同步/异步 OkHttpClient–&gt;Request-&gt;call-<br>同步call.execute  阻塞当前线程 直接执行拦截器 没有回调。<br>call.enqueue(callback) 不阻塞当前线程 带回调，回调不在主线程，需要手动执行切换。<br>dispatcher<br>拦截器链式调用<br>用户自定义的拦截器<br>retryAndFollowUpInterceptor(重试拦截器)<br>BridgeInterceptor（创建Request）<br>CacheInterceptor(缓存拦截器)<br>ConnectInterceptor（）<br>CallServerInterceptor（执行了最终请求的发送和接受）<br>自己根据RFC 的协议封装了底层通讯方式，自己实现了HTTP语义。<br>连接池复用<br>I/O 操作采用了OKIO 更加高效<br>OKIO 分析<br>底层采用</p>
+<p>###4.EventBus<br>使用 定义event 准备订阅者 订阅者在总线上注册和注销自己 发送事件<br>线程模型 Posting(发布者线程) MAIN(主线程) BACKGROUD(后台线程)(只有发布者不在主线程的情况下才会开启异步，否则不开启异步线程) ASYNC（异步线程）</p>
+<p>方法添加的双重检查<br>允许一个类有多个参数相同的订阅方法。<br>子类继承并重写了父类的订阅方法，那么只会把子类的订阅方法添加到订阅者列表，父类的方法会忽略。<br>原理及其优化点<br>无法跨进程  事件传递混乱 无法有效跟踪<br>四种线程类型以及实现的方式。<br>对比 OTTO<br>OTTO 采用了运行时注解，效率不高，而且线程模型比较单一，需要开发者自己去维护，比如说后台线程，但是自由度更高。<br>eventBus性能更好，而且有更新维护。<br>2.0 3.0 版本变更的区别 及其做了哪些优化操作</p>
+<p>###5.Glide<br>谷歌官方推荐，api简洁易用，大小合适400K，并且加载图片高效。<br>Glide.with(this).load(url).into(target);</p>
+<p><strong>with 方法</strong></p>
+<p>多个重载 with 在创建了RequestManager，为Activity或者Fragment 绑定了一个附加的一个隐藏的Framgent，添加生命周期回调方式，<br>为Activity 附加一个隐藏的Fragment，去检测Activity的生命周期，因为具有同步的方法。</p>
+<p><strong>load方法</strong> </p>
+<p>RequestManager类的方法，主要作用是设置请求参数，进行一些配置，比如 placeholder() error() ,diskCacheStrategy()等,返回了一个DrawableTypeRequest类。</p>
+<p><strong>into方法</strong><br>GenericRequestBuilder into() 根据上一步的设置来生成对应的Target。<br>onSizeReady 计算尺寸。 最后调用engine.load() 执行加载过程。<br><strong>内存缓存</strong><br>engine.load()过程中会调用两个方法来获取内存缓存，loadFromCache()和loadFromActiveResources()。这两个方法中一个使用的就是LruCache算法，另一个使用的就是弱引用。<br>先从lru中取，然后在从 activeResource 当中取，执行不到再去网络加载。<br>LruResourceCache中获取到缓存图片之后会将它从缓存中移除，然后将这个缓存图片存储到activeResources当中。activeResources就是一个弱引用的HashMap，用来缓存正在使用中的图片。activeResources来缓存正在使用中的图片，可以保护这些图片不会被LruCache算法回收掉。这样也就实现了正在使用中的图片使用弱引用来进行缓存.<br>采用引用计数的方式,acquire/release 当资源引用计数为0，触发回调，从activeResources移除，并将资源加入到lru缓存当中去。<br>相当于两级缓存提高了缓存使用效率，增加了命中率。<br><strong>磁盘缓存</strong><br>默认在私有目录下存储<br>DiskLruCache<br>原始图片缓存 key 调用的是 getOriginKey<br>转换后的图片 调用的十个参数的key<br><strong>网络请求*</strong><br>默认HttpURLConnection网络库,默认超时时间是2.5s。</p>
+<p>###6.leakcanary<br>为每个被监控的对象创建一个弱引用，默认监控应用内所有的Activity，方法是，在Android 4.0 中新增了 ActiviyLifeCycleCallback回调，当Activity onDestroy 生命周期执行时，注册监控RefWatcher.watch(this),这个方法当中，会为当前的Activity 对象生成 UUID（放在retainKeys当中） ，关联弱引用和一个引用队列，在后台线程当中执行回收动作。如果正常销毁，那么被监控对应的弱引用就被加入到引用队列不为空，在第一个刷新retainedKeys 函数当中移除这个弱引用对应的key,然后检查检查是否还存在这个retainKey,如果还存在说明尚未被回收，主动调用GC 然后再次刷新retainKeys ，如果发现还有retainKey 仍然存在，判定为内存泄露。<br>存在问题，并不一定准确，并不一定很及时，gc方法的回收时机并不确定，可能会误报。</p>
+<p>###7.blockcanary</p>
+<p>本质利用 Looper.loop 方法当中，会在 msg.target.dispatchMessage 方法前后插入<br>打印日志，</p>
+<p>伪代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">class Monitor implements Printer&#123;</span><br><span class="line">	//标志</span><br><span class="line">	private boolean isStart=false;</span><br><span class="line">	//开始时间</span><br><span class="line">	private long startTime;</span><br><span class="line">	//结束时间</span><br><span class="line">	private long endTime;</span><br><span class="line">	@Override</span><br><span class="line">    public void println(String x)&#123;</span><br><span class="line">    	if(!isStart)&#123;</span><br><span class="line">    		startTime=currentTime();</span><br><span class="line">    		isStart=true;</span><br><span class="line">    	&#125;</span><br><span class="line">    	else&#123;</span><br><span class="line">    		endTime=currentTime();</span><br><span class="line">    		isStart=false;</span><br><span class="line">    		if(endTime-startTime&gt;1000)</span><br><span class="line">    			doSomeThing();    		</span><br><span class="line">    	&#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">...</span><br><span class="line">Loop.getMainLooper().setMessageLogging(new Monitor());</span><br></pre></td></tr></table></figure>
+<p>CPUSample 通过读取 proc/stat/设备文件来获取cpu 信息，<br>StackSample 通过 Thread.getStackTrace()来输出线程栈调用栈信息。</p>
+<p>###8.ButterKnife<br>反射理解<br> 反射的不足  JVM 无法进行优化而且会产生大量临时对象，造成GC频繁等性能问题。<br> 注解 运行时注解（RunTime） 编译时注解(Class)</p>
+<p>编译时注解运用APT 注解处理器 利用 javapoet 生成了Java文件。<br>生成了辅助类，bind方法调用时 本质利用反射的方式调用了辅助类的构造方法，构造方法中执行了view的绑定操作，所以自己不需要再手动执行绑定操作。<br>view不能是 private/static target.tvTest 通过点操作符直接调用,static 的话会导致如果忘记调用unbind造成变量无法回收，内存泄漏风险。</p>
+<p>###9.RxJava<br>几个重要角色<br>被观察者 Observerable(可观测的 意思就是被观察者) 产生事件起点</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">//标准写法</span><br><span class="line">Observerable.create(OnSubscribe()&#123;call()&#123;</span><br><span class="line">	//发送事件</span><br><span class="line">&#125;&#125;);</span><br><span class="line">//OnSubscribe 是个接口，继承自Action1</span><br><span class="line">//偷懒写法</span><br><span class="line">just(t1,t2,t3..)，from(&#123;t1,t2,t3 &#125;)</span><br></pre></td></tr></table></figure>
+<p>操作符 map ,flatmap ,filter进行事件转化过滤加工等操作<br>观察者 Subscriber（订阅者 作为观察者角色）观测事件终点<br>是一个抽象类 实现了Observer接口（onNext onComplete onError）<br>ActionX 接口 {call(X个参数)} 处理<br>Observerable.subscribe(subscriber) 实现了关联，这个地方注意为了流式调用方便。</p>
+<p>如何实现线程切换<br>///指定在被观察者运行的线程<br>suscribeOn()  以第一次指定为准<br>//指定下一步操作的运行的线程<br>observeOn()</p>
+<p>订阅的原理，操作符的原理，线程切换的原理</p>
+<p>订阅方法将观察者传递给了onSubscribe接口的call方法参数，中间经过了Hook<br>执行了call方法。<br>just from 最终是根据参数 执行onNext 最终添加 onCompleted<br>订阅 Action<br>操作符原理<br>  map,filter flatMap<br>本质是一种代理模式，生成一个新的Observable和 OnSubscribe,然后通过转换器<br>transfromer 将转换后的结果 转发给目标的subscriber<br>lift操作<br>线程切换原理<br>四个immediate newThread io computation 线程<br>被观察者<br>也是一种代理模式，生成一个新的Observable和 OnSubscribe,通过传入的调度器<br>将目标的call方法，切换到调度器所指定的线程中执行。<br>观察者</p>
+<p>RxJava 与EventBus 区别，如何取舍<br>RxJava 学习成本高<br>flatmap<br>map映射中做了个二次转换，将原来的数据源T转换为数据源R之后，通过operator创建操作构造了一个相关observalbe。<br>然后再把这些个observable弹出来的数据统统整合到一个observable中去。</p>
+<p>###10.greenDao </p>
+<p>ORM 对象关系映射，就是讲SQL操作，转化为对对象方法调用，更加符合使用直觉。</p>
+<p>DaoMaster DaoSession xxxxDao（预先定义了一些操作）  xxxxEntity（实体类）</p>
+<p>GreenDao 相比其他ORM 有哪些优势</p>
+<p><strong>生成辅助类，而不是反射</strong><br>不利用反射，而是用freemarker模板方式在编译期之前帮你生成可用的和数据库生成有关的表帮助对象.低版本需要手动执行代码，高版本的话只需要定义注解。<br><strong>查询懒加载</strong><br>lazyList 初始化时根据是否缓存标识 生成list,真正使用时才去真正加载，优化内存占用，并且内部默认开启缓存标识，用list集合保存了已经get过的对象，便于下次使用,提高查询速度。<br><strong>批量插入支持</strong><br>提高了插入效率，本质上是显示开启/关闭事务，避免循环单条插入造成事务操作的反复执行，因为事务操作依赖于日志文件。</p>
+<p>##其他问题</p>
+<h3 id="gradle"><a href="#gradle" class="headerlink" title="gradle"></a>gradle</h3><p>####sdk version<br>miniSdkVersion&lt;targetSdkVersion&lt;=compileSdkVersion buildToolsVersion 构建工具版本 包含aapt dx 这些</p>
+<p>####几种依赖<br>几种依赖 complie(编译+打包都用到) debugCompile（生成debug包用到）releaseCompile(生成release包用到) provided (只在编译时起作用) </p>
+<p>###具体工具的使用方法</p>
+<p><strong>Hierarchy Viewer</strong></p>
+<p>布局上 Hierarchy Viewer<br> 选择指定进程 把布局加载进来，点击其中一个view,<br>显示view的绘制情况，特别是绘制时间长的，绿(超过50%) 黄（低于50%） 红（最慢）绘制时间不同，绿色表示绘制性能较好，并且可以较清楚看到布局有哪些无用的嵌套。结合Lint 来检查。<br>1）没有用的父布局时指没有背景绘制或者没有大小限制的父布局，这样的布局不会对UI效果产生任何影响。我们可以把没有用的父布局，通过<merge>标签合并来减少UI的层次；<br>2）使用线性布局LinearLayout排版导致UI层次变深，如果有这类问题，我们就使用相对布局RelativeLayout代替LinearLayout,减少UI的层次；<br>3）不常用的UI被设置成GONE,比如异常的错误页面，如果有这类问题，我们需要用<viewstub>标签，代替GONE提高UI性能。<br>GONE但是在Inflate布局的时候View仍然会被Inflate，也就是说仍然会创建对象，会被实例化，会被设置属性。也就是说，会耗费内存等资源。</viewstub></merge></p>
+<p><strong>tracer for opengl es</strong></p>
+<p>打开开发者选项里过度绘制 原色（1） 蓝（2） 绿（3） 粉（4） 红（5）<br>看到绘制情况，然后进行对应的优化。最直接就是因为设置很多重复的背景色，导致像素多次绘制，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">android:windowbackground=&quot;null&quot;</span><br></pre></td></tr></table></figure></p>
+<p><strong>TraceView</strong></p>
+<p>Debug类 在需要的地方 startMethodTracing()  结束的地方stopMethodTracing() ，生成trace文件，<br>然后用traceview工具打开这个文件，重点分析哪些调用时间长的方法，如果占用时间长（Excl Real Time）某方法本身真正执行的是时间，并且（Calls+RecurCalls）调用次数+递归次数 少，那么就应该重点关注这些方法 是不是有耗时操作。</p>
+<p><strong>Systrace</strong></p>
+<p>在系统的一些关键链路（比如System Service，虚拟机，Binder驱动）插入一些信息（我这里称之为Label），通过Label的开始和结束来确定某个核心过程的执行时间，然后把这些Label信息收集起来得到系统关键路径的运行时间信息，进而得到整个系统的运行性能信息。Android Framework里面一些重要的模块都插入了Label信息（Java层的通过android.os.Trace类完成，native层通过ATrace宏完成），用户App中可以添加自定义的Label，这样就组成了一个完成的性能分析系统。</p>
+<p><strong><em>MAT</em></strong> </p>
+<p>内存分析工具，ddms 导出一个hprof 文件，利用命令转换成MAT可以识别的文件。<br> 使用 Heap查看当前堆大小为 23.00M<br> 添加一个页后堆大小变为 23.40M<br> 将添加的一个页删除，堆大小为 23.40M<br>多次操作，结果仍相似，说明添加/删除页存在内存泄漏 (也应注意排除其它因素的影响)<br> Dump 出操作前后的 hprof 文件 (1.hprof,2.hprof)，用 mat打开,并得到 histgram结果<br>使用 HomePage字段过滤 histgram结果，并列出该类的对象实例列表，看到两个表中的对象集合大小不同，操作后比操作前多出一个 HomePage，说明确实存在泄漏<br>将两个列表进行对比，找出多出的一个对象，用查找 GC Root的方法找出是谁串起了这条GC链。</p>
+<p>###如何学习Android<br>首先是看书和看视频敲代码，然后看大牛的博客，做一些项目，向github提交代码，觉得自己API掌握的不错之后，开始看进阶的书，以及看源码，看完源码学习到一些思想，开始自己造轮子，开始想代码的提升，比如设计模式，架构，重构等。<br>《第一行代码》《Android开发艺术探索》 《Android设计模式解析与实战》《Android 内核设计思想》</p>
+<p>###为什么离职<br>一个方面是团队内部调整了，暂时没有新的任务，另一个方面就是家里面正好有事，所以直接辞职了回去了，回来再去看看有没有其他机会。</p>
+<p>###擅长哪些方面</p>
+<p>大概是比较喜欢各种优化吧，布局，内存，网络，安装包，对这些比较敏感，感觉不好的地方总想去动动，但是有时候优化无止境，特别在一些低端机上，还是不免出现卡顿，丢帧什么的。还有一些业务上的还有设计师的设计要求，有时候布局上不可能尽善尽美，特别任务紧的时候，有些优化也照顾不到。</p>
+<p>一切抛开业务谈优化都是空中楼阁，这就需要产品设计也要有一个权衡，在复杂的业务逻辑与简单易用的界面展现中做一个平衡，而不是一味的OverDesign。</p>
+<p>###项目相关问题</p>
+<ol>
+<li><p>XXX（某个比较重要的点）是怎么实现的？</p>
+</li>
+<li><p>你在项目中遇到的最大的困难是什么，怎么解决的？</p>
+</li>
+<li><p>项目某个部分考虑的不够全面，如果XXXX，你怎么优化？</p>
+</li>
+<li><p>XXX（一个新功能）需要实现，你有什么思路？</p>
+</li>
+</ol>
+<p>###有什么问题要问</p>
+<p>1.贵公司一向以XXX著称，能不能说明一下公司这方面的特点？</p>
+<ol>
+<li>贵公司XXX业务发展很好，这是公司发展的重点么？</li>
+<li>对技术和业务怎么看？</li>
+<li>贵公司一般的团队是多大，几个人负责一个产品或者业务？</li>
+<li>贵公司的开发中是否会使用到一些最新技术？</li>
+<li>对新人有没有什么培训，会不会安排导师？</li>
+<li>对Full Stack怎么看？</li>
+<li>你觉得我有哪些需要提高的地方？</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/uploads/wechatpay.png" alt="Brijoe 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/uploads/alipay.png" alt="Brijoe 支付宝"/>
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/11/直播技术总结/" rel="next" title="直播技术总结">
+                <i class="fa fa-chevron-left"></i> 直播技术总结
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      
+        <div id="gitment-container"></div>
+      
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/uploads/avatar.png"
+                alt="Brijoe" />
+            
+              <p class="site-author-name" itemprop="name">Brijoe</p>
+              <p class="site-description motion-element" itemprop="description">记录技术成长的点滴</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/brijoe" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:mrbridgeliang@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#HTTP-HTTPS"><span class="nav-number">1.</span> <span class="nav-text">HTTP HTTPS</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#查找"><span class="nav-number"></span> <span class="nav-text">查找</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#基本架构"><span class="nav-number">0.1.</span> <span class="nav-text">基本架构</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#newFixedThreadPool"><span class="nav-number">1.</span> <span class="nav-text">newFixedThreadPool</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#newCacheThreadPool"><span class="nav-number">2.</span> <span class="nav-text">newCacheThreadPool</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#内存管理机制"><span class="nav-number"></span> <span class="nav-text">内存管理机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#动画"><span class="nav-number"></span> <span class="nav-text">动画</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#发送文件的优化"><span class="nav-number">1.</span> <span class="nav-text">发送文件的优化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#gradle"><span class="nav-number">2.</span> <span class="nav-text">gradle</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Brijoe</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+<!-- LOCAL: You can save these files to your site and update links -->
+    
+        
+        <link rel="stylesheet" href="https://aimingoo.github.io/gitmint/style/default.css">
+        <script src="https://aimingoo.github.io/gitmint/dist/gitmint.browser.js"></script>
+    
+<!-- END LOCAL -->
+
+    
+
+    
+      <script type="text/javascript">
+      function renderGitment(){
+        var gitment = new Gitmint({
+            id: '1523624510000', 
+            owner: 'brijoe',
+            repo: 'brijoe.github.io',
+            
+            lang: "" || navigator.language || navigator.systemLanguage || navigator.userLanguage,
+            
+            oauth: {
+            
+            
+                client_secret: 'b243f82e02902bfd95ace6386cb793126816b30a',
+            
+                client_id: '9618dcdcfcc122ec87a8'
+            }});
+        gitment.render('gitment-container');
+      }
+
+      
+      renderGitment();
+      
+      </script>
+    
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
