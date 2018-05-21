@@ -81,18 +81,18 @@
 
 <meta name="description" content="原文地址：https://developer.android.com/topic/performance/vitals/launch-time 优化应用启动时间用户希望App能够快速相应和加载，应用启动缓慢会带来糟糕的用户体验，导致用户恶评，甚至会卸载你的应用。 这篇文章提供的信息能够帮助你优化应用的启动时间。首先，我们先来了解应用启动的内部原理，接下来，我们会讨论如何分析启动性能。最后，最后我们">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Android优化启动时间">
-<meta property="og:url" content="https://brijoe.github.io/2018/05/21/Android优化启动时间/index.html">
+<meta property="og:title" content="Android优化App启动时间">
+<meta property="og:url" content="https://brijoe.github.io/2018/05/21/Android优化App启动时间/index.html">
 <meta property="og:site_name" content="Brijoe的博客">
 <meta property="og:description" content="原文地址：https://developer.android.com/topic/performance/vitals/launch-time 优化应用启动时间用户希望App能够快速相应和加载，应用启动缓慢会带来糟糕的用户体验，导致用户恶评，甚至会卸载你的应用。 这篇文章提供的信息能够帮助你优化应用的启动时间。首先，我们先来了解应用启动的内部原理，接下来，我们会讨论如何分析启动性能。最后，最后我们">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://brijoe.github.io/2018/05/21/uploads/cold-launch.png">
-<meta property="og:image" content="https://brijoe.github.io/2018/05/21/uploads/displayed-logcat.png">
-<meta property="og:updated_time" content="2018-05-21T09:25:21.737Z">
+<meta property="og:image" content="https://brijoe.github.io/uploads/cold-launch.png">
+<meta property="og:image" content="https://brijoe.github.io/uploads/displayed-logcat.png">
+<meta property="og:updated_time" content="2018-05-21T10:17:52.513Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Android优化启动时间">
+<meta name="twitter:title" content="Android优化App启动时间">
 <meta name="twitter:description" content="原文地址：https://developer.android.com/topic/performance/vitals/launch-time 优化应用启动时间用户希望App能够快速相应和加载，应用启动缓慢会带来糟糕的用户体验，导致用户恶评，甚至会卸载你的应用。 这篇文章提供的信息能够帮助你优化应用的启动时间。首先，我们先来了解应用启动的内部原理，接下来，我们会讨论如何分析启动性能。最后，最后我们">
-<meta name="twitter:image" content="https://brijoe.github.io/2018/05/21/uploads/cold-launch.png">
+<meta name="twitter:image" content="https://brijoe.github.io/uploads/cold-launch.png">
 
 
 
@@ -122,13 +122,13 @@
 
 
 
-  <link rel="canonical" href="https://brijoe.github.io/2018/05/21/Android优化启动时间/"/>
+  <link rel="canonical" href="https://brijoe.github.io/2018/05/21/Android优化App启动时间/"/>
 
 
 
 
 
-  <title>Android优化启动时间 | Brijoe的博客</title>
+  <title>Android优化App启动时间 | Brijoe的博客</title>
   
 
 
@@ -265,7 +265,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://brijoe.github.io/2018/05/21/Android优化启动时间/">
+    <link itemprop="mainEntityOfPage" href="https://brijoe.github.io/2018/05/21/Android优化App启动时间/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Brijoe">
@@ -282,7 +282,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Android优化启动时间</h1>
+          <h1 class="post-title" itemprop="name headline">Android优化App启动时间</h1>
         
 
         <div class="post-meta">
@@ -294,7 +294,7 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-21T17:10:47+08:00">
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-21T17:59:18+08:00">
                 2018-05-21
               </time>
             
@@ -313,8 +313,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2018/05/21/Android优化启动时间/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count gitment-comments-count" data-xid="/2018/05/21/Android优化启动时间/" itemprop="commentsCount"></span>
+                <a href="/2018/05/21/Android优化App启动时间/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count gitment-comments-count" data-xid="/2018/05/21/Android优化App启动时间/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -365,7 +365,7 @@
 </ol>
 <p>一旦 应用进程完成了首次绘制，系统进程会用Main Activity 来替换 之前已经生成的背景窗体。这个时候，用户就可以使用app了。</p>
 <p>图1 展示了启动过程中系统和应用程序之间的交替执行过程</p>
-<p><img src="../uploads/cold-launch.png" alt="图1"></p>
+<p><img src="/uploads/cold-launch.png" alt="图1"></p>
 <p>图1 冷启动过程重要步骤展示</p>
 <p>启动性能问题可能会出现在应用创建和主Activity 创建过程中。</p>
 <h4 id="Application-创建"><a href="#Application-创建" class="headerlink" title="Application 创建"></a>Application 创建</h4><p>当你的应用启动时，空白窗口将会一直存在 直到系统完成了应用的首次绘制操作，此时，系统会替换掉启动窗口，好让用户能够和App进行交互。</p>
@@ -407,7 +407,8 @@
 <p>日志大概长这个样子：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ActivityManager: Displayed com.android.myexample/.StartupTiming: +3s534ms</span><br></pre></td></tr></table></figure>
 <p>如果你从命令行或者终端中追踪logcat 输出，那么很容易能够找到这个时间值。<br>注意你要禁用logcat过滤，因为这条日志是是系统输出的而不是App自己。设置好后你就能很容易抓取到输出的时间值。图二显示了如何禁用过滤器，并且在日志的倒数第二行可以看到<code>Displayd</code>字段的值。</p>
-<p><img src="../uploads/displayed-logcat.png" alt="图2"><br>图2 禁用过滤器后输出了Displayed 字段</p>
+<p><img src="/uploads/displayed-logcat.png" alt="图2"></p>
+<p>图2 禁用过滤器后输出了Displayed 字段</p>
 <p>Display的值 并不一定是所有资源都加载完成后显示的总耗时，它b并不包括不被布局文件及初始化对象所引用的资源的加载时间，因为这个加载过程是一个内部过程，不阻塞应用初始内容的显示。</p>
 <p>有时候，Displayed所在的那行输出 包含了一个附加字段total time ,例如</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ActivityManager: Displayed com.android.myexample/.StartupTiming: +3s534ms (total +1m22s643ms)</span><br></pre></td></tr></table></figure>
@@ -873,7 +874,7 @@
       <script type="text/javascript">
       function renderGitment(){
         var gitment = new Gitmint({
-            id: '1526893847000', 
+            id: '1526896758000', 
             owner: 'brijoe',
             repo: 'brijoe.github.io',
             
