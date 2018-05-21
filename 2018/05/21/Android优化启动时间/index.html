@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="原文地址：https://developer.android.com/topic/performance/vitals/launch-time 优化应用启动时间用户希望App能够快速相应和加载，应用启动缓慢会带来糟糕的用户体验，导致用户恶评，甚至会卸载你的应用。 这篇文章提供的信息能够帮助你优化应用的启动时间。首先，我们先来了解应用启动的内部原理，接下来，我们会讨论如何分析启动性能。最后，最后我们">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android优化启动时间">
+<meta property="og:url" content="https://brijoe.github.io/2018/05/21/Android优化启动时间/index.html">
+<meta property="og:site_name" content="Brijoe的博客">
+<meta property="og:description" content="原文地址：https://developer.android.com/topic/performance/vitals/launch-time 优化应用启动时间用户希望App能够快速相应和加载，应用启动缓慢会带来糟糕的用户体验，导致用户恶评，甚至会卸载你的应用。 这篇文章提供的信息能够帮助你优化应用的启动时间。首先，我们先来了解应用启动的内部原理，接下来，我们会讨论如何分析启动性能。最后，最后我们">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://img-blog.csdn.net/20180521170700642?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3lseWcwNTA1MTg=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70">
+<meta property="og:image" content="https://img-blog.csdn.net/201805211707497?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3lseWcwNTA1MTg=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70">
+<meta property="og:updated_time" content="2018-05-21T09:12:06.790Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android优化启动时间">
+<meta name="twitter:description" content="原文地址：https://developer.android.com/topic/performance/vitals/launch-time 优化应用启动时间用户希望App能够快速相应和加载，应用启动缓慢会带来糟糕的用户体验，导致用户恶评，甚至会卸载你的应用。 这篇文章提供的信息能够帮助你优化应用的启动时间。首先，我们先来了解应用启动的内部原理，接下来，我们会讨论如何分析启动性能。最后，最后我们">
+<meta name="twitter:image" content="https://img-blog.csdn.net/20180521170700642?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3lseWcwNTA1MTg=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://brijoe.github.io/2018/05/21/Android优化启动时间/"/>
+
+
+
+
+
+  <title>Android优化启动时间 | Brijoe的博客</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Brijoe的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">brijoe.github.io</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://brijoe.github.io/2018/05/21/Android优化启动时间/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Brijoe">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Brijoe的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Android优化启动时间</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-21T17:10:47+08:00">
+                2018-05-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/05/21/Android优化启动时间/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count gitment-comments-count" data-xid="/2018/05/21/Android优化启动时间/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>原文地址：<a href="https://developer.android.com/topic/performance/vitals/launch-time" target="_blank" rel="noopener">https://developer.android.com/topic/performance/vitals/launch-time</a></p>
+<h1 id="优化应用启动时间"><a href="#优化应用启动时间" class="headerlink" title="优化应用启动时间"></a>优化应用启动时间</h1><p>用户希望App能够快速相应和加载，应用启动缓慢会带来糟糕的用户体验，导致用户恶评，甚至会卸载你的应用。</p>
+<p>这篇文章提供的信息能够帮助你优化应用的启动时间。首先，我们先来了解应用启动的内部原理，接下来，我们会讨论如何分析启动性能。最后，最后我们会介绍一些影响启动性能的常见问题，并会给出相应的解决办法。</p>
+<h2 id="应用启动原理"><a href="#应用启动原理" class="headerlink" title="应用启动原理"></a>应用启动原理</h2><p>应用启动可以分为三种类型，冷启动，暖启动，热启动，每种类型所花费的时间是不一样的。<br>冷启动模式下，应用进程完全不存在，系统要新建应用进程。在另外两种模式下，系统只需要将运行中的应用从后台切换到前台。建议你针对冷启动模式做优化。冷启动速度得到提升了，暖启动和热启动也会变得很快。</p>
+<p>那么在应用启动过程中，Android系统和应用层都做了那些操作呢？理解了它们的内部原理，将会帮助我们做好启动性能优化。</p>
+<h3 id="冷启动"><a href="#冷启动" class="headerlink" title="冷启动"></a>冷启动</h3><p>冷启动指应用重新开始创建：在启动之前，系统进程尚未创建出应用进程。冷启动通常发生在第一次打开应用或者系统主动杀掉了你的应用的情况下。和其他启动方式相比，冷启动模式需要系统和应用做更多的初始化操作，所以优化起来也有一定的挑战。</p>
+<p>在冷启动的开始阶段，系统需要执行三个任务：</p>
+<ol>
+<li>加载和启动应用程序,</li>
+<li>在app启动后立即显示一个空白启动窗体</li>
+<li>创建App进程。</li>
+</ol>
+<p>一旦系统创建了应用进程，应用进程就会执行下面步骤：</p>
+<ol>
+<li>创建应用程序对象</li>
+<li>启动主线程</li>
+<li>创建Main Activity</li>
+<li>初始化构造view</li>
+<li>在屏幕上布局。</li>
+<li>执行初始化绘制操作</li>
+</ol>
+<p>一旦 应用进程完成了首次绘制，系统进程会用Main Activity 来替换 之前已经生成的背景窗体。这个时候，用户就可以使用app了。</p>
+<p>图1 展示了启动过程中系统和应用程序之间的交替执行过程</p>
+<p><img src="https://img-blog.csdn.net/20180521170700642?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3lseWcwNTA1MTg=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="图1]"><br>图1 冷启动过程重要步骤展示</p>
+<p>启动性能问题可能会出现在应用创建和主Activity 创建过程中。</p>
+<h4 id="Application-创建"><a href="#Application-创建" class="headerlink" title="Application 创建"></a>Application 创建</h4><p>当你的应用启动时，空白窗口将会一直存在 直到系统完成了应用的首次绘制操作，此时，系统会替换掉启动窗口，好让用户能够和App进行交互。</p>
+<p>如果你覆写了Application.onCreate()方法，系统将会调用你的Applcation 的onCreate()方法。之后 应用程序将会创建出主线程(也叫UI 线程),并执行创建主Activity 的过程。</p>
+<p>从这个时候开始,系统和应用程序级别的进程将按照应用程序生命周期阶段进行。</p>
+<h4 id="Activity-创建"><a href="#Activity-创建" class="headerlink" title="Activity 创建"></a>Activity 创建</h4><p>当应用进程创建了Activity 后，Activity 会执行以下操作：</p>
+<ol>
+<li>初始化值</li>
+<li>调用构造方法</li>
+<li>调用当前生命周期的回调函数，例如Activity.onCreate()</li>
+</ol>
+<p>通常情况下，onCreate()方法对加载时间影响最大，因为它要执行的操作更加繁重：加载和构造view,还有初始化activity运行 所需的对象。</p>
+<h3 id="热启动"><a href="#热启动" class="headerlink" title="热启动"></a>热启动</h3><p>应用的热启动和冷启动相比，更加简单，开销也更少。在热启动过程中，系统要做的只是把你的Activity切换到前台来。如果应用的所有Activity都驻留在内存中，那么应用就可以避免重复进行对象初始化，布局加载还有渲染。</p>
+<p>然而，如果系统执行了内存回收操作并触发了回收事件，例如 onTrimMemory() ,那么热启动时对象仍需要重建。</p>
+<p>在屏幕窗口的操作上，热启动操作具有和冷启动的一样的过程：<br>系统进程将会一直显示一个空白屏幕直到应用完成主Activity的渲染。</p>
+<h3 id="暖启动"><a href="#暖启动" class="headerlink" title="暖启动"></a>暖启动</h3><p>暖启动过程包含了冷启动过程的部分步骤，同时开销比热启动更小。<br>暖启动发生在这么几个场景下：</p>
+<ol>
+<li>用户退出了应用，然后又重新打开。这种情况下，应用进程可以继续运行，但应用必须重建Activity 通过调用 onCreate()。</li>
+<li>应用程序内存被系统回收， 然后用户又重新打开。这个时候，进程和Activity都需要被创建，但应用可以从Activity 的onCreate()方法的Bundle类型参数中拿到系统为我们保存的实例。</li>
+</ol>
+<h2 id="发现并定位问题"><a href="#发现并定位问题" class="headerlink" title="发现并定位问题"></a>发现并定位问题</h2><p>Android 提供了多种方式能让你能够发现并定位App的问题。Android vitals 可以给出问题告警，然后诊断工具可以帮你定位出问题。</p>
+<h3 id="Android-vitals"><a href="#Android-vitals" class="headerlink" title="Android vitals"></a>Android vitals</h3><p>Android vitals 可以通过Play控制台提醒您应用的启动时间过长，从而帮助您提高应用的性能。Android vitals启动时间过长的判断标准如下：</p>
+<ol>
+<li>冷启动花费5秒或更长。</li>
+<li>暖启动花费2秒或更长。</li>
+<li>热启动花费1.5秒或更长。</li>
+</ol>
+<p>daily session 指的是你App当天的启动情况。</p>
+<p>Android vitals 并不会报告热启动的数据。关于Google Play 如何搜集Android vitals 数据的详细信息，请参考 <a href="https://support.google.com/googleplay/android-developer/answer/7385505" target="_blank" rel="noopener">Play Console</a>  文档。</p>
+<h3 id="测量慢启动耗时"><a href="#测量慢启动耗时" class="headerlink" title="测量慢启动耗时"></a>测量慢启动耗时</h3><p>为了正确评估应用启动性能，你可以关注一些能够显示应用启动时长的数据指标。</p>
+<h4 id="初始化显示耗时"><a href="#初始化显示耗时" class="headerlink" title="初始化显示耗时"></a>初始化显示耗时</h4><p>在Android 4.4（API level 19）和更高的版本中，logcat包含了一个名为Displayed值的输出行。这个值代表了从应用进程启动到完成Activity绘制所花费时间。这个过程包含了以事件序列：</p>
+<ol>
+<li>启动应用进程，</li>
+<li>初始化对象</li>
+<li>创建和初始化Activity</li>
+<li>构建布局</li>
+<li>首次绘制应用</li>
+</ol>
+<p>日志大概长这个样子：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ActivityManager: Displayed com.android.myexample/.StartupTiming: +3s534ms</span><br></pre></td></tr></table></figure>
+<p>如果你从命令行或者终端中追踪logcat 输出，那么很容易能够找到这个时间值。<br>注意你要禁用logcat过滤，因为这条日志是是系统输出的而不是App自己。设置好后你就能很容易抓取到输出的时间值。图二显示了如何禁用过滤器，并且在日志的倒数第二行可以看到<code>Displayd</code>字段的值。</p>
+<p><img src="https://img-blog.csdn.net/201805211707497?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3lseWcwNTA1MTg=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="图2"><br>图2 禁用过滤器后输出了Displayed 字段</p>
+<p>Display的值 并不一定是所有资源都加载完成后显示的总耗时，它b并不包括不被布局文件及初始化对象所引用的资源的加载时间，因为这个加载过程是一个内部过程，不阻塞应用初始内容的显示。</p>
+<p>有时候，Displayed所在的那行输出 包含了一个附加字段total time ,例如</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ActivityManager: Displayed com.android.myexample/.StartupTiming: +3s534ms (total +1m22s643ms)</span><br></pre></td></tr></table></figure>
+<p>这种情况下，第一个时间值表示绘制出第一个可见Activity的耗时.后面的total time 指从应用进程的启动开始，可能会包含另一个Activity的启动，但这个Activity 并不可见。total time 只会在启动单个Activity时长和总启动时长不一样才显示。</p>
+<p>你也可以使用 <a href="https://developer.android.com/studio/command-line/adb#shellcommands" target="_blank" rel="noopener">ADB Shell Activity Manager</a> 测量启动到显示的时间。像这样：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">adb [-d|-e|-s &lt;serialNumber&gt;] shell am start -S -W</span><br><span class="line">com.example.app/.MainActivity</span><br><span class="line">-c android.intent.category.LAUNCHER</span><br><span class="line">-a android.intent.action.MAIN</span><br></pre></td></tr></table></figure>
+<p><code>Displayed</code> 依旧会之前那样在logcat中输出，同时你的终端窗口也会有以下输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Starting: Intent</span><br><span class="line">Activity: com.example.app/.MainActivity</span><br><span class="line">ThisTime: 2044</span><br><span class="line">TotalTime: 2044</span><br><span class="line">WaitTime: 2054</span><br><span class="line">Complete</span><br></pre></td></tr></table></figure>
+<p><code>-c</code>和 <code>-a</code>参数是可选的，你可以定义Intent的<code>&lt;category&gt;</code> 和 <code>&lt;action&gt;</code>。</p>
+<h4 id="完全显示耗时"><a href="#完全显示耗时" class="headerlink" title="完全显示耗时"></a>完全显示耗时</h4><p>你可以使用 <code>reportFullyDrawn()</code>方法来测量应用启动到所有资源和视图层次结构的完整显示之间所经过的时间，该方法在应用使用延迟加载的情况下是很有用的。在延迟加载时，应用在初始的绘图之后，异步加载资源，然后更新视图。</p>
+<p>如果由于延迟加载，应用的初始显示并不包括所有的资源，则可以将所有资源和视图的加载和显示视为单独的度量标准：例如：你的用户界面可能已经完成了文本的加载，但又必须从网络获取图像。</p>
+<p>为了解决这个问题，你可以手动调用<code>reportFullyDrawn()</code>，让系统知道你的 Activity 何时完成了它的延迟加载。当您使用此方法，logcat 将显示出从创建应用对象到调用 <code>reportFullyDrawn()</code> 方法的时间。下面是 logcat 的输出示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">system_process I/ActivityManager: Fully drawn &#123;package&#125;/.MainActivity: +1s54ms</span><br></pre></td></tr></table></figure>
+<p>logcat 输出有时候可能会包含一个total time 字段，这个我们在 <a href="#初始化显示耗时">初始化显示耗时</a>部分已经讨论过。</p>
+<p>如果你确定出你的显示耗时要比预期的长，你进一步继续尝试找出启动过程中的性能瓶颈。</p>
+<h3 id="确定性能瓶颈"><a href="#确定性能瓶颈" class="headerlink" title="确定性能瓶颈"></a>确定性能瓶颈</h3><p>Android Studio提供了两种方法来确定性能瓶颈，Method Tracer工具和内嵌追踪。 要了解Method Tracer，请参阅该工具的<a href="https://developer.android.com/studio/profile/am-methodtrace" target="_blank" rel="noopener">文档</a>。</p>
+<p>如果您无法访问Method Tracer工具，或者无法在正确的时间启动该工具以获取日志信息，则可以通过在应用程序和Activity的onCreate（）方法中进行内嵌跟踪来获得类似的观察结果。 要了解内嵌跟踪，请参阅<a href="https://developer.android.com/reference/android/os/Trace" target="_blank" rel="noopener">Trace</a>函数以及<a href="https://developer.android.com/studio/command-line/systrace" target="_blank" rel="noopener">Systrace</a>工具的文档。</p>
+<h2 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h2><p>本节讨论经常影响应用程序启动性能的几个问题。主要是关注应用与 Activity 对象的初始化以及画面的加载。</p>
+<h3 id="App初始化开销大"><a href="#App初始化开销大" class="headerlink" title="App初始化开销大"></a>App初始化开销大</h3><p>Application 的创建过程中，如果执行复杂的逻辑或者初始化大量的对象，将会影响应用的启动体验。具体来说，就是你继承了 Application 并在初始化时执行了不必要的代码。有些初始化可能是完全不需要的，比如：保存 一个实际上由 intent 启动的 app 中的 main activity 的状态信息，通过Intent启动Activitiy,应用只会使用到已经初始化过得状态数据的一部分。</p>
+<p>其它在 app 启动期间影响性能的操作还有垃圾回收，或者同步磁盘 I/O，这都会阻塞初始化进程。垃圾回收只是针对于 Dalvik 虚拟机来说，Art 虚拟机同步执行垃圾回收，将影响降到最低了。</p>
+<h4 id="诊断问题"><a href="#诊断问题" class="headerlink" title="诊断问题"></a>诊断问题</h4><p>可以使用Method tracing或inline tracing来诊断问题。</p>
+<p><strong>Method racing</strong></p>
+<p>运行Method Tracer工具，会显示出<code>callApplicationOnCreate（）</code>方法最终调用`com.example.customApplication.onCreate方法。如果该工具显示这些方法需要很长时间才能完成执行，那么你应该好好看看这些方法到底做了哪些操作。<br><strong>Inline tracing</strong><br>使用内嵌追踪来找出可能的引发问题的元凶，包括：</p>
+<ol>
+<li>应用的初始onCreate（）函数。</li>
+<li>应用初始化的任何全局单例对象。</li>
+<li>任何瓶颈期间可能发生的磁盘I/O，反序列化，或紧凑的循环操作。</li>
+</ol>
+<h4 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h4><p>不论问题是否由非必要的初始化或磁盘I/O引起，解决方案都是要延迟初始化对象：仅初始化那些立即使用的对象。例如，采用单例模式而不是创建全局静态对象，在该模式中，应用程序仅在第一次访问时才创建对象。也可以考虑使用 Dagger 之类的依赖注入框架，当第一次被注入时才创建对象和依赖。</p>
+<h3 id="Activity初始化操作复杂"><a href="#Activity初始化操作复杂" class="headerlink" title="Activity初始化操作复杂"></a>Activity初始化操作复杂</h3><p>Activity 的创建通常包含大量高负载工作。一般来说，可以通过考虑以下方面的问题来优化工作提高性能：</p>
+<ol>
+<li>加载比较大或复杂的布局；</li>
+<li>磁盘或网络 I/O 阻塞屏幕绘制；</li>
+<li>加载和解码 bitmap；</li>
+<li>调整 VectorDrawable 对象的大小；</li>
+<li>activity 中子系统的初始化。</li>
+</ol>
+<h4 id="问题诊断"><a href="#问题诊断" class="headerlink" title="问题诊断"></a>问题诊断</h4><p>同样，使用方法追踪和内部追踪。</p>
+<p><strong>方法追踪</strong><br>当运行 Method Tracer 工具时，主要的关注点是 app 中 Application 子类的构造方法和 com.example.customApplication.onCreate() 方法。<br>如果工具显示完成执行时间较长，那么应该认真查找这部分做了哪些工作。</p>
+<p><strong>内部追踪</strong><br>app 初次 onCreate() ；<br>app 初始化的任何全局单例对象；<br>任何在瓶颈期可能形成的磁盘I/O，反序列化或紧凑循环。</p>
+<h4 id="解决方案-1"><a href="#解决方案-1" class="headerlink" title="解决方案"></a>解决方案</h4><p>有很多可能的瓶颈，两个常见的问题和解决方法如下：</p>
+<ol>
+<li><p>view 的层级越多，布局的时候就会花更多时间，可以通过两个步骤优化：</p>
+<ol>
+<li>通过减少重复和布局嵌套是布局变得扁平化。</li>
+<li>不要加载启动时对用户不可见的布局，可以使用 ViewStub。</li>
+</ol>
+</li>
+<li><p>把所有资源的初始化放到 main thread 中也会减慢启动速度，可以这样优化：</p>
+<ol>
+<li>使用懒加载或非 main thread 初始化资源。</li>
+<li>允许 app 先展示 view，然后再更新 bitmap 或其它可见资源。</li>
+</ol>
+</li>
+</ol>
+<h3 id="设置启动页的主题"><a href="#设置启动页的主题" class="headerlink" title="设置启动页的主题"></a>设置启动页的主题</h3><p>你可以让 app使用自定义主题加载，使 app 的启动屏幕与其它界面保持主题一致，而不是使用系统主题，这样做也可以使 activity 的启动看起来没那么慢。<br>通常实现启动屏幕主题化的方法是使用 <code>windowDisablePreview</code> 属性去关闭初次启动时的白屏。然而，使用这种方法会导致更长的启动时间，并且，当用户点击启动图标后可能会因为无界面反馈而使用户感到疑惑。</p>
+<h4 id="问题诊断-1"><a href="#问题诊断-1" class="headerlink" title="问题诊断"></a>问题诊断</h4><p>通常可以通过观察 app 启动时是不是没有响应来确定是不是存在问题，这种情况下，屏幕仿佛被冰冻一样卡住，对输入事件也不会有响应。</p>
+<h4 id="解决方案-2"><a href="#解决方案-2" class="headerlink" title="解决方案"></a>解决方案</h4><p>相比于禁用 preview window，可以遵循 Material Design 模式。可以使用 acitivity 的 windowBackground 属性为启动屏幕提供一个简单的背景。<br>例如，可以创建一个 xml 布局文件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&lt;layer-list xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:opacity=&quot;opaque&quot;&gt;</span><br><span class="line">  &lt;!-- The background color, preferably the same as your normal theme --&gt;</span><br><span class="line">  &lt;item android:drawable=&quot;@android:color/white&quot;/&gt;</span><br><span class="line">  &lt;!-- Your product logo - 144dp color version of your app icon --&gt;</span><br><span class="line">  &lt;item&gt;</span><br><span class="line">    &lt;bitmap</span><br><span class="line">      android:src=&quot;@drawable/product_logo_144dp&quot;</span><br><span class="line">      android:gravity=&quot;center&quot;/&gt;</span><br><span class="line">  &lt;/item&gt;</span><br><span class="line">&lt;/layer-list&gt;</span><br></pre></td></tr></table></figure>
+<p>对应的 Manifest 文件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;activity ...</span><br><span class="line">android:theme=&quot;@style/AppTheme.Launcher&quot; /&gt;</span><br></pre></td></tr></table></figure>
+<p>最简单的切换为正常主题的方式是在调用 <code>super.onCreate()</code> 和 <code>setContentView()</code> 前调用 <code>setTheme(R.style.AppTheme)</code> ：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">public class MyMainActivity extends AppCompatActivity &#123;</span><br><span class="line">  @Override</span><br><span class="line">  protected void onCreate(Bundle savedInstanceState) &#123;</span><br><span class="line">    // Make sure this is before calling super.onCreate</span><br><span class="line">    setTheme(R.style.Theme_MyApp);</span><br><span class="line">    super.onCreate(savedInstanceState);</span><br><span class="line">    // ...</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/uploads/wechatpay.png" alt="Brijoe 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/uploads/alipay.png" alt="Brijoe 支付宝"/>
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/04/13/Android知识点总结/" rel="next" title="Android技术点总结">
+                <i class="fa fa-chevron-left"></i> Android技术点总结
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      
+        <div id="gitment-container"></div>
+      
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/uploads/avatar.png"
+                alt="Brijoe" />
+            
+              <p class="site-author-name" itemprop="name">Brijoe</p>
+              <p class="site-description motion-element" itemprop="description">记录技术成长的点滴</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/brijoe" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:mrbridgeliang@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#优化应用启动时间"><span class="nav-number">1.</span> <span class="nav-text">优化应用启动时间</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#应用启动原理"><span class="nav-number">1.1.</span> <span class="nav-text">应用启动原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#冷启动"><span class="nav-number">1.1.1.</span> <span class="nav-text">冷启动</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Application-创建"><span class="nav-number">1.1.1.1.</span> <span class="nav-text">Application 创建</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Activity-创建"><span class="nav-number">1.1.1.2.</span> <span class="nav-text">Activity 创建</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#热启动"><span class="nav-number">1.1.2.</span> <span class="nav-text">热启动</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#暖启动"><span class="nav-number">1.1.3.</span> <span class="nav-text">暖启动</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#发现并定位问题"><span class="nav-number">1.2.</span> <span class="nav-text">发现并定位问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Android-vitals"><span class="nav-number">1.2.1.</span> <span class="nav-text">Android vitals</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#测量慢启动耗时"><span class="nav-number">1.2.2.</span> <span class="nav-text">测量慢启动耗时</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#初始化显示耗时"><span class="nav-number">1.2.2.1.</span> <span class="nav-text">初始化显示耗时</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#完全显示耗时"><span class="nav-number">1.2.2.2.</span> <span class="nav-text">完全显示耗时</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#确定性能瓶颈"><span class="nav-number">1.2.3.</span> <span class="nav-text">确定性能瓶颈</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常见问题"><span class="nav-number">1.3.</span> <span class="nav-text">常见问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#App初始化开销大"><span class="nav-number">1.3.1.</span> <span class="nav-text">App初始化开销大</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#诊断问题"><span class="nav-number">1.3.1.1.</span> <span class="nav-text">诊断问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#解决方案"><span class="nav-number">1.3.1.2.</span> <span class="nav-text">解决方案</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Activity初始化操作复杂"><span class="nav-number">1.3.2.</span> <span class="nav-text">Activity初始化操作复杂</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#问题诊断"><span class="nav-number">1.3.2.1.</span> <span class="nav-text">问题诊断</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#解决方案-1"><span class="nav-number">1.3.2.2.</span> <span class="nav-text">解决方案</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#设置启动页的主题"><span class="nav-number">1.3.3.</span> <span class="nav-text">设置启动页的主题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#问题诊断-1"><span class="nav-number">1.3.3.1.</span> <span class="nav-text">问题诊断</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#解决方案-2"><span class="nav-number">1.3.3.2.</span> <span class="nav-text">解决方案</span></a></li></ol></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Brijoe</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+<!-- LOCAL: You can save these files to your site and update links -->
+    
+        
+        <link rel="stylesheet" href="https://aimingoo.github.io/gitmint/style/default.css">
+        <script src="https://aimingoo.github.io/gitmint/dist/gitmint.browser.js"></script>
+    
+<!-- END LOCAL -->
+
+    
+
+    
+      <script type="text/javascript">
+      function renderGitment(){
+        var gitment = new Gitmint({
+            id: '1526893847000', 
+            owner: 'brijoe',
+            repo: 'brijoe.github.io',
+            
+            lang: "" || navigator.language || navigator.systemLanguage || navigator.userLanguage,
+            
+            oauth: {
+            
+            
+                client_secret: 'b243f82e02902bfd95ace6386cb793126816b30a',
+            
+                client_id: '9618dcdcfcc122ec87a8'
+            }});
+        gitment.render('gitment-container');
+      }
+
+      
+      renderGitment();
+      
+      </script>
+    
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
