@@ -88,7 +88,7 @@
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://brijoe.github.io/uploads/compile-success.png">
 <meta property="og:image" content="https://brijoe.github.io/uploads/emulator.png">
-<meta property="og:updated_time" content="2018-05-28T04:16:42.673Z">
+<meta property="og:updated_time" content="2018-05-28T04:21:25.412Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Ubuntu 14.04编译Android 2.3.7源代码记录">
 <meta name="twitter:description" content="编译环境 机型 MacBook Pro 2015款 8G+256G SSD 虚拟机 下安装操作系统 Ubuntu 14.04 LTS 64位  下载源代码下载源代码 Android 2.3.7r1 源码，原本按照谷歌官方的指导，需要下载repo同步AOSP，但是遇到太多问题，并且.repo 文件相当大，下载耗时太久，而且很容易出现问题，而且所以直接下载别人打包好的7z格式高压缩比源码包。 为什么使">
@@ -372,8 +372,8 @@
 <p> 原因：系统的文件换了位置。<br> 解决:  此时需要将 <code>/usr/include/x86_64-linux-gnu/zconfig.h</code>拷贝到上级目录，此时编译才通过将 <code>zconfig.h</code>拷贝到<code>/usr/include/</code> 目录即可 </p>
  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd /usr/include/x86_64-linux-gnu/</span><br><span class="line">sudo cp zconfig.h ../</span><br></pre></td></tr></table></figure>
 </li>
-<li><p><strong><code>out/target/common/obj/APPS/SignatureTest_intermediates/genres.stamp Killed</code>
-</strong><br>原因：给虚拟机设定的内存太小，仅1G。<br>解决：将内存增大到4G 后解决。</p>
+<li><p><strong><code>out/target/common/obj/APPS/SignatureTest_intermediates/genres.stamp Killed</code></strong> </p>
+<p>原因：给虚拟机设定的内存太小，仅1G。<br>解决：将内存增大到4G 后解决。</p>
 </li>
 <li><p><strong><code>SDL init failure, reason is: No available video device</code></strong></p>
 <p> 原因：缺少SDL库支持。<br> 解决方法：添加库。</p>
